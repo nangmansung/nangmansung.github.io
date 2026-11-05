@@ -154,7 +154,21 @@
       </script>
     </d-front-matter>
 
-    <nav class="site-nav"><a href="https://nangmansung.github.io/research/">← Research</a></nav>
+    <!-- 돌아가기 링크: blog에 올리면 blog로, Research에 올리면 Research로 자동으로 바뀌어요 -->
+    <nav class="site-nav"><a id="back-link" href="https://nangmansung.github.io/">← nangmansung</a></nav>
+    <script>
+      (function () {
+        var a = document.getElementById("back-link");
+        var path = location.pathname;
+        if (path.indexOf("/posts/") === 0) {
+          a.href = "/blog/";
+          a.textContent = "← blog";
+        } else if (path.indexOf("/research/") === 0) {
+          a.href = "/research/";
+          a.textContent = "← Research";
+        }
+      })();
+    </script>
 
     <!-- 여기를 바꾸세요: 큰 제목과 부제 -->
     <d-title>

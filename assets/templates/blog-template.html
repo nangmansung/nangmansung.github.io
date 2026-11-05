@@ -5,7 +5,8 @@
   사용법
   1. 이 파일을 복사해서 이름을 영어로 바꾸세요. 예: ring-attractor.html
   2. "여기를 바꾸세요" 라고 적힌 부분을 내 내용으로 바꾸세요.
-  3. 블로그의 + 버튼 → "HTML 업로드"로 올리면 Research 목록에 자동으로 추가돼요.
+  3. 블로그의 + 버튼 → "HTML 업로드"로 올리세요.
+     blog 페이지에서 누르면 blog 글 목록에, Research 페이지에서 누르면 Research 목록에 추가돼요.
      그림 파일이 있으면 폴더(예: ring-attractor/)에 index.html 과 그림을 같이 넣어서 폴더째 올리세요.
 
   미리보기: 이 파일을 더블클릭하면 브라우저에서 바로 볼 수 있어요 (인터넷 연결 필요).
@@ -165,7 +166,21 @@
       </script>
     </d-front-matter>
 
-    <nav class="site-nav"><a href="https://nangmansung.github.io/research/">← Research</a></nav>
+    <!-- 돌아가기 링크: blog에 올리면 blog로, Research에 올리면 Research로 자동으로 바뀌어요 -->
+    <nav class="site-nav"><a id="back-link" href="https://nangmansung.github.io/">← nangmansung</a></nav>
+    <script>
+      (function () {
+        var a = document.getElementById("back-link");
+        var path = location.pathname;
+        if (path.indexOf("/posts/") === 0) {
+          a.href = "/blog/";
+          a.textContent = "← blog";
+        } else if (path.indexOf("/research/") === 0) {
+          a.href = "/research/";
+          a.textContent = "← Research";
+        }
+      })();
+    </script>
 
     <!-- 여기를 바꾸세요: 큰 제목과 부제 -->
     <d-title>
