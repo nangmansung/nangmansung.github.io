@@ -1,32 +1,21 @@
-# Bundler cache
+_site
 .bundle
-vendor
-Gemfile.lock
-
-# Jekyll cache
+.DS_store
+.idea
 .jekyll-cache
 .jekyll-metadata
-_site
+.ruby-version
+.sass-cache
+.tweet-cache
+.venv
+assets/libs/
+assets/rendercv/rendercv_output/*.typ
+al-folio-upgrade-report.md
+node_modules/
+output/playwright/
+test-results/
+vendor
 
-# RubyGems
-*.gem
-
-# NPM dependencies
-node_modules
-package-lock.json
-
-# IDE configurations
-.idea
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
-!.vscode/tasks.json
-
-# Misc
-_sass/vendors
-assets/js/dist
-
-# Hidden system files
-*~
-.DS_Store
-Thumbs.db
+# Python bytecode from bin/ helper scripts
+__pycache__/
+*.pyc

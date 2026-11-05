@@ -1,0 +1,158 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+@charset "utf-8";
+
+/* Built-in Sass modules you’ll likely use across partials */
+@use "sass:math";
+@use "sass:string";
+
+/* Configure your design tokens BEFORE loading any of your partials.
+   Make sure `_sass/_variables.scss` declares `$max-content-width: 72rem !default;` */
+@use "variables" with (
+  $max-content-width: {{ site.max_width | default:  "930px" }}
+);
+
+/* Your project partials — convert these files to `@use "variables";`
+   (or `@use "variables" as *;`) inside each file and qualify variables if needed. */
+@use "themes";
+@use "layout";
+
+// Core styles organized by usage
+@use "typography";
+@use "navbar";
+@use "footer";
+@use "blog";
+@use "publications";
+@use "components";
+@use "utilities";
+
+// Other specialized styles
+@use "tabs";
+@use "teachings";
+@use "typograms";
+
+/*******************************************************************************
+ * Site customizations (nangmansung): light academic look, green accents,
+ * Source Sans 3 / Noto Sans KR, light-green band behind distill post titles.
+ * Everything above this block is the unchanged al_folio_core main.scss.
+ ******************************************************************************/
+
+:root {
+  --font-sans: "Source Sans 3", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+
+  --global-text-color: #333333;
+  --global-text-color-light: #6b7280;
+  --global-theme-color: #1f8a5b;
+  --global-hover-color: #5fb38a;
+  --global-code-bg-color: #f1f3f6;
+  --global-divider-color: rgba(0, 0, 0, 0.1);
+  --global-footer-bg-color: #f6faf7;
+  --global-footer-text-color: #6b7280;
+  --global-footer-link-color: #1f8a5b;
+  --global-distill-app-color: #6b7280;
+
+  --site-title-band: #f2f8f4;
+  --site-link-underline: #a9d6bd;
+}
+
+html,
+body,
+.navbar,
+d-title,
+d-byline,
+d-article,
+d-appendix {
+  font-family: var(--font-sans);
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-mono);
+}
+
+body {
+  color: var(--global-text-color);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.post-title {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Links in running text: green with a thin light-green underline */
+.post p a,
+.post li a,
+d-article p a,
+d-article li a {
+  text-decoration: underline 1px var(--site-link-underline);
+  text-underline-offset: 3px;
+}
+
+/* Navbar: plain white with a hairline */
+.navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--global-divider-color);
+  box-shadow: none;
+}
+
+/* Inline code chips */
+p code,
+li code {
+  padding: 1px 5px;
+  font-size: 0.85em;
+  background-color: var(--global-code-bg-color);
+  border-radius: 4px;
+}
+
+/* ---------- Distill posts ---------- */
+
+.post.distill d-title {
+  padding: 48px 0 32px;
+  background-color: var(--site-title-band);
+}
+
+.post.distill d-title h1 {
+  color: #222222;
+  font-weight: 600;
+}
+
+.post.distill d-title p {
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1.45;
+  color: #555555;
+}
+
+.post.distill d-article {
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+@media (min-width: 1024px) {
+  .post.distill d-article {
+    font-size: 18px;
+  }
+}
+
+.post.distill d-article figcaption,
+.post.distill d-article .caption {
+  font-size: 0.9em;
+  color: var(--global-text-color-light);
+}
+
+/* TL;DR / note box */
+.post.distill .tldr {
+  padding: 14px 18px;
+  margin: 8px 0 24px;
+  background-color: var(--site-title-band);
+  border-left: 3px solid var(--global-theme-color);
+  border-radius: 4px;
+}
