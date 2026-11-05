@@ -1,0 +1,224 @@
+<!doctype html>
+<!--
+  nangmansung 블로그 기본 HTML 양식
+
+  사용법
+  1. 이 파일을 복사해서 이름을 영어로 바꾸세요. 예: ring-attractor.html
+  2. "여기를 바꾸세요" 라고 적힌 부분을 내 내용으로 바꾸세요.
+  3. 블로그의 + 버튼 → "HTML 업로드"로 올리면 Research 목록에 자동으로 추가돼요.
+     그림 파일이 있으면 폴더(예: ring-attractor/)에 index.html 과 그림을 같이 넣어서 폴더째 올리세요.
+
+  미리보기: 이 파일을 더블클릭하면 브라우저에서 바로 볼 수 있어요 (인터넷 연결 필요).
+-->
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- 여기를 바꾸세요: Research 목록에 보이는 제목 / 설명 / 날짜 -->
+    <title>글 제목</title>
+    <meta name="description" content="Research 목록에 보일 한 줄 설명" />
+    <meta name="date" content="2026-11-05" />
+
+    <!-- 블로그 글과 같은 레이아웃 (Distill 템플릿: 제목, 저자 줄, 각주, 인용) -->
+    <script src="https://nangmansung.github.io/assets/js/distillpub/template.v2.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Noto+Sans+KR:wght@300..700&family=JetBrains+Mono:wght@400;600&display=swap"
+    />
+
+    <!-- 블로그와 같은 색과 글꼴. 보통은 바꿀 필요 없어요. -->
+    <style>
+      :root {
+        --text: #333333;
+        --text-light: #6b7280;
+        --green: #1f8a5b;
+        --green-light: #a9d6bd;
+        --band: #f2f8f4;
+        --rule: rgba(0, 0, 0, 0.1);
+        --font-sans: "Source Sans 3", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Helvetica, Arial, sans-serif;
+        --font-mono: "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+      }
+      html {
+        font-family: var(--font-sans);
+        color: var(--text);
+        background: #ffffff;
+        -webkit-font-smoothing: antialiased;
+      }
+      d-title,
+      d-byline,
+      d-article,
+      d-appendix {
+        font-family: var(--font-sans);
+      }
+      code,
+      pre {
+        font-family: var(--font-mono);
+      }
+
+      .site-nav {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 14px 24px;
+        font-size: 15px;
+      }
+      .site-nav a {
+        color: var(--green);
+        text-decoration: none;
+      }
+
+      d-title {
+        padding: 48px 0 32px;
+        background-color: var(--band);
+      }
+      d-title h1 {
+        color: #222222;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      d-title p {
+        font-size: 21px;
+        font-weight: 300;
+        line-height: 1.45;
+        color: #555555;
+      }
+
+      d-article {
+        font-size: 17px;
+        line-height: 1.6;
+        color: var(--text);
+      }
+      @media (min-width: 1024px) {
+        d-article {
+          font-size: 18px;
+        }
+      }
+      d-article h2,
+      d-article h3 {
+        font-weight: 600;
+      }
+      d-article a {
+        color: var(--green);
+        border-bottom: none;
+        text-decoration: underline 1px var(--green-light);
+        text-underline-offset: 3px;
+      }
+      d-article a:hover {
+        color: var(--green-light);
+        border-bottom: none;
+      }
+      d-article p code,
+      d-article li code {
+        padding: 1px 5px;
+        font-size: 0.85em;
+        background-color: #f1f3f6;
+        border-radius: 4px;
+      }
+      d-article pre {
+        padding: 12px 14px;
+        font-size: 14px;
+        background-color: #f1f3f6;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+      d-article figure img {
+        width: 100%;
+        border-radius: 4px;
+      }
+      d-article figcaption {
+        font-size: 0.9em;
+        color: var(--text-light);
+      }
+
+      .tldr {
+        padding: 14px 18px;
+        margin: 8px 0 24px;
+        background-color: var(--band);
+        border-left: 3px solid var(--green);
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 저자 / 소속 / 날짜: 제목 아래 저자 줄에 보여요. 여기를 바꾸세요. -->
+    <d-front-matter>
+      <script type="text/json">
+        {
+          "title": "글 제목",
+          "published": "November 5, 2026",
+          "authors": [
+            {
+              "author": "nangmansung",
+              "authorURL": "https://github.com/nangmansung",
+              "affiliations": [{ "name": "소속", "url": "" }]
+            }
+          ]
+        }
+      </script>
+    </d-front-matter>
+
+    <nav class="site-nav"><a href="https://nangmansung.github.io/research/">← Research</a></nav>
+
+    <!-- 여기를 바꾸세요: 큰 제목과 부제 -->
+    <d-title>
+      <h1>글 제목</h1>
+      <p>제목 아래에 들어갈 한두 줄 소개</p>
+    </d-title>
+
+    <d-byline></d-byline>
+
+    <d-article>
+      <div class="tldr"><b>TL;DR</b> 핵심 내용을 한두 문장으로 쓰세요.</div>
+
+      <h2>소제목</h2>
+      <p>
+        여기에 본문을 쓰세요. 문단은 <code>&lt;p&gt; ... &lt;/p&gt;</code> 로 감싸요.
+        <a href="https://github.com/nangmansung">링크</a>는 이렇게 걸어요.
+      </p>
+
+      <h2>수식</h2>
+      <p>문장 안 수식: <d-math>E = mc^2</d-math></p>
+      <d-math block>\tau \frac{dV}{dt} = -(V - V_{\text{rest}}) + R\, I(t)</d-math>
+
+      <h2>그림</h2>
+      <!-- 그림 파일을 이 HTML과 같은 폴더에 넣고 파일 이름을 쓰세요 -->
+      <figure>
+        <img src="figure1.png" alt="그림 설명" />
+        <figcaption><b>Figure 1:</b> 그림 설명을 쓰세요.</figcaption>
+      </figure>
+
+      <h2>각주와 인용</h2>
+      <p>
+        문장 끝에 각주를 달 수 있어요.<d-footnote>각주 내용은 글 맨 아래에 모여서 보여요.</d-footnote>
+        논문은 아래 참고문헌 목록의 key로 인용해요 <d-cite key="hopfield1982"></d-cite>.
+      </p>
+
+      <h2>코드</h2>
+      <pre><code>import numpy as np
+x = np.linspace(0, 2 * np.pi, 100)
+print(np.sin(x).max())</code></pre>
+    </d-article>
+
+    <!-- 각주와 참고문헌이 자동으로 여기에 정리돼요 -->
+    <d-appendix></d-appendix>
+
+    <!-- 참고문헌: BibTeX 형식으로 추가하세요. 위에서 <d-cite key="..."> 로 인용해요. -->
+    <d-bibliography>
+      <script type="text/bibtex">
+        @article{hopfield1982,
+          title   = {Neural networks and physical systems with emergent collective computational abilities},
+          author  = {Hopfield, John J.},
+          journal = {Proceedings of the National Academy of Sciences},
+          volume  = {79},
+          number  = {8},
+          pages   = {2554--2558},
+          year    = {1982}
+        }
+      </script>
+    </d-bibliography>
+  </body>
+</html>
