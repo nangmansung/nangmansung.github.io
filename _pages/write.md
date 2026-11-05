@@ -50,7 +50,7 @@ sitemap: false
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    var HASH = "b6b24d39d00974452464b4a6237e9045bb8ffa066af61ee7932223a2e440c9f7";
+    var HASH = "067e57d55cfc067e7535f65fbef540e170c8aa76334bbadd4f5db7b89f167af4";
     var lock = document.getElementById("write-lock");
     var panel = document.getElementById("write-panel");
 
