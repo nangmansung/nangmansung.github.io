@@ -1,6 +1,9 @@
 // Floating "+" button (bottom right) with: new post, upload HTML, download template.
-// Shown only in browsers that opened /write/ once (sets localStorage "nm-owner"),
-// so ordinary visitors never see it.
+// Shown only in browsers unlocked with the password on /write/ (localStorage
+// "nm-owner2"), so ordinary visitors never see it. This is a convenience lock,
+// not security: publishing still needs the owner's GitHub login.
+// "HTML 업로드" goes to posts/ (blog list) or research/ (Research list)
+// depending on the page it is opened from.
 (function () {
   var REPO = "https://github.com/nangmansung/nangmansung.github.io";
 
@@ -38,13 +41,21 @@
     );
   }
 
+  function uploadTarget() {
+    var path = location.pathname;
+    if (path.indexOf("/research") === 0) return { folder: "research", label: "Research" };
+    return { folder: "posts", label: "blog" };
+  }
+
   window.nmNewPostUrl = newPostUrl;
-  window.nmUploadUrl = REPO + "/upload/main/research";
+  window.nmUploadUrl = function (folder) {
+    return REPO + "/upload/main/" + (folder || uploadTarget().folder);
+  };
   window.nmTemplateUrl = "/assets/templates/blog-template.html";
 
   function isOwner() {
     try {
-      return localStorage.getItem("nm-owner") === "1";
+      return localStorage.getItem("nm-owner2") === "1";
     } catch (e) {
       return false;
     }
@@ -58,14 +69,14 @@
     wrap.innerHTML =
       '<div class="nm-fab-menu" role="menu">' +
       '<a role="menuitem" target="_blank" rel="noopener" class="nm-fab-item" data-act="post">✏️ 새 글 쓰기</a>' +
-      '<a role="menuitem" target="_blank" rel="noopener" class="nm-fab-item" data-act="upload">⬆️ HTML 업로드</a>' +
+      '<a role="menuitem" target="_blank" rel="noopener" class="nm-fab-item" data-act="upload">⬆️ HTML 업로드 (' + uploadTarget().label + ")</a>' +
       '<a role="menuitem" class="nm-fab-item" data-act="template" download="blog-template.html">⬇️ 기본 HTML 다운로드</a>' +
       "</div>" +
       '<button type="button" class="nm-fab-btn" aria-label="글쓰기 메뉴" aria-expanded="false">+</button>';
     document.body.appendChild(wrap);
 
     wrap.querySelector('[data-act="post"]').href = newPostUrl();
-    wrap.querySelector('[data-act="upload"]').href = window.nmUploadUrl;
+    wrap.querySelector('[data-act="upload"]').href = window.nmUploadUrl();
     wrap.querySelector('[data-act="template"]').href = window.nmTemplateUrl;
 
     var btn = wrap.querySelector(".nm-fab-btn");
@@ -92,8 +103,9 @@
 
   window.nmSetOwner = function (on) {
     try {
-      if (on) localStorage.setItem("nm-owner", "1");
-      else localStorage.removeItem("nm-owner");
+      localStorage.removeItem("nm-owner");
+      if (on) localStorage.setItem("nm-owner2", "1");
+      else localStorage.removeItem("nm-owner2");
     } catch (e) {}
     var old = document.querySelector(".nm-fab");
     if (old) old.remove();
