@@ -156,3 +156,72 @@ li code {
   border-left: 3px solid var(--global-theme-color);
   border-radius: 4px;
 }
+
+/* ---------- Research list ---------- */
+
+.research-list {
+  display: grid;
+  gap: 16px;
+}
+
+.research-card {
+  display: block;
+  padding: 18px 20px;
+  color: var(--global-text-color) !important;
+  text-decoration: none !important;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 8px;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.research-card:hover {
+  background-color: var(--site-title-band);
+  border-color: var(--global-hover-color);
+}
+
+.research-card h3 {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+  color: var(--global-theme-color);
+}
+
+.research-card p {
+  margin: 0;
+  color: var(--global-text-color-light);
+}
+
+.research-date {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--global-text-color-light);
+}
+
+/* ---------- Write page buttons ---------- */
+
+.write-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0 28px;
+}
+
+.write-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  font-weight: 600;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  background-color: var(--global-theme-color);
+  border-radius: 6px;
+}
+
+.write-btn:hover {
+  background-color: #17714a;
+}
+
+.write-btn.secondary {
+  color: var(--global-theme-color) !important;
+  background-color: var(--site-title-band);
+  border: 1px solid var(--site-link-underline);
+}
