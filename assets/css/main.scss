@@ -225,3 +225,75 @@ li code {
   background-color: var(--site-title-band);
   border: 1px solid var(--site-link-underline);
 }
+
+/* ---------- Floating write button (assets/js/fab.js) ---------- */
+
+.nm-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  font-family: var(--font-sans);
+}
+
+.nm-fab-btn {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  font-size: 32px;
+  line-height: 56px;
+  color: #ffffff;
+  cursor: pointer;
+  background-color: var(--global-theme-color);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.nm-fab-btn:hover {
+  background-color: #17714a;
+}
+
+.nm-fab-open .nm-fab-btn {
+  transform: rotate(45deg);
+}
+
+.nm-fab-menu {
+  display: none;
+  flex-direction: column;
+  min-width: 190px;
+  padding: 6px;
+  background-color: #ffffff;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.nm-fab-open .nm-fab-menu {
+  display: flex;
+}
+
+.nm-fab-item {
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  color: var(--global-text-color) !important;
+  text-decoration: none !important;
+  border-radius: 6px;
+}
+
+.nm-fab-item:hover {
+  background-color: var(--site-title-band);
+  color: var(--global-theme-color) !important;
+}
+
+@media (max-width: 576px) {
+  .nm-fab {
+    right: 16px;
+    bottom: 16px;
+  }
+}
