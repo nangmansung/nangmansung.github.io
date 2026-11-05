@@ -69,7 +69,7 @@
     wrap.innerHTML =
       '<div class="nm-fab-menu" role="menu">' +
       '<a role="menuitem" target="_blank" rel="noopener" class="nm-fab-item" data-act="post">✏️ 새 글 쓰기</a>' +
-      '<a role="menuitem" target="_blank" rel="noopener" class="nm-fab-item" data-act="upload">⬆️ HTML 업로드 (' + uploadTarget().label + ")</a>' +
+      '<a role="menuitem" target="_blank" rel="noopener" class="nm-fab-item" data-act="upload">⬆️ HTML 업로드 (' + uploadTarget().label + ")</a>" +
       '<a role="menuitem" class="nm-fab-item" data-act="template" download="blog-template.html">⬇️ 기본 HTML 다운로드</a>' +
       "</div>" +
       '<button type="button" class="nm-fab-btn" aria-label="글쓰기 메뉴" aria-expanded="false">+</button>';
