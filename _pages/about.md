@@ -21,4 +21,4 @@ latest_posts:
 Hi, I'm **nangmansung**.
 
 I write up what I research and study on this blog.
-You can find the posts under [blog](/blog/). 한국어로 보려면 오른쪽 위 **KOR**을 누르세요.
+You can find my projects under [Research](/research/). 한국어로 보려면 오른쪽 위 **KOR**을 누르세요.
