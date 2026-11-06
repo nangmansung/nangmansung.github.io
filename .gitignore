@@ -19,3 +19,6 @@ vendor
 # Python bytecode from bin/ helper scripts
 __pycache__/
 *.pyc
+
+# Local editing drafts (not published, not committed)
+_drafts/

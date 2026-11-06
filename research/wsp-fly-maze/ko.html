@@ -7,6 +7,8 @@
     <title>AI가 초파리 뇌의 배선을 고쳐 미로를 탈출시키다</title>
     <meta name="description" content="Claude가 FlyWire 전뇌 모델의 시냅스 가중치를 경사하강법 없이 직접 고쳐, 처음 보는 미로 탈출률을 4%에서 99%로 올렸다." />
     <meta name="date" content="2026-11-06" />
+    <!-- AI용 자세한 버전 (같은 폴더의 ai.md) -->
+    <link rel="alternate" type="text/markdown" href="ai.md" title="Detailed version for AI readers" />
 
     <script src="https://nangmansung.github.io/assets/js/distillpub/template.v2.js"></script>
 
@@ -213,12 +215,12 @@
       </script>
     </d-front-matter>
 
-    <!-- 돌아가기 링크와 KOR | ENG 버튼: 올린 위치와 파일 언어에 맞게 자동으로 바뀌어요. 보통은 바꿀 필요 없어요. -->
+    <!-- 돌아가기 링크와 KOR | ENG | AI 버튼: 올린 위치와 파일 언어에 맞게 자동으로 바뀌어요. 보통은 바꿀 필요 없어요. -->
     <nav class="site-nav">
       <a id="back-link" href="https://nangmansung.github.io/">← nangmansung</a>
-      <a id="lang-switch" class="lang-switch" href="#">
-        <span data-l="ko">KOR</span><span class="lang-sep">|</span><span data-l="en">ENG</span>
-      </a>
+      <span id="lang-switch" class="lang-switch">
+        <a data-l="ko" hreflang="ko" lang="ko">KOR</a><span class="lang-sep">|</span><a data-l="en" hreflang="en" lang="en">ENG</a><span class="lang-sep ai-part">|</span><a data-l="ai" class="ai-part" title="Detailed version for AI readers (Markdown)">AI</a>
+      </span>
     </nav>
     <script>
       (function () {
@@ -230,23 +232,37 @@
           back.href = (ko ? "/ko/" : "/") + section + "/";
           back.textContent = "← " + (section === "blog" ? (ko ? "블로그" : "blog") : ko ? "연구" : "Research");
         }
-        // KOR | ENG: index.html (English) <-> ko.html (Korean) in the same folder.
-        // If the other-language file does not exist, go to that language's list instead.
+        // KOR | ENG | AI: ko.html (Korean), index.html (English), ai.md (detailed Markdown for AI readers),
+        // all in the same folder. A missing language goes to that language's list; a missing ai.md hides AI.
         var sw = document.getElementById("lang-switch");
-        sw.querySelector('[data-l="' + (ko ? "ko" : "en") + '"]').className = "lang-current";
         var dir = path.replace(/[^/]*$/, "");
-        var sibling = dir + (ko ? "index.html" : "ko.html");
-        var fallback = (ko ? "/" : "/ko/") + (section || "blog") + "/";
-        sw.href = sibling;
-        if (location.protocol.indexOf("http") === 0) {
-          fetch(sibling, { method: "HEAD" })
-            .then(function (r) {
-              if (!r.ok) sw.href = fallback;
-            })
-            .catch(function () {
-              sw.href = fallback;
+        var cur = ko ? "ko" : "en";
+        var targets = { ko: dir + "ko.html", en: dir + "index.html", ai: dir + "ai.md" };
+        var fallbacks = { ko: "/ko/" + (section || "blog") + "/", en: "/" + (section || "blog") + "/", ai: null };
+        function missing(l, a) {
+          if (fallbacks[l]) a.href = fallbacks[l];
+          else
+            sw.querySelectorAll(".ai-part").forEach(function (e) {
+              e.style.display = "none";
             });
         }
+        ["ko", "en", "ai"].forEach(function (l) {
+          var a = sw.querySelector('[data-l="' + l + '"]');
+          if (l === cur) {
+            a.className = "lang-current";
+            return;
+          }
+          a.href = targets[l];
+          if (location.protocol.indexOf("http") === 0) {
+            fetch(targets[l], { method: "HEAD" })
+              .then(function (r) {
+                if (!r.ok) missing(l, a);
+              })
+              .catch(function () {
+                missing(l, a);
+              });
+          }
+        });
       })();
     </script>
 
