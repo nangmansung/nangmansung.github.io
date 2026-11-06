@@ -4,7 +4,7 @@
 
 ## Research
 
-- [An AI rewires a fly brain to escape mazes](https://nangmansung.github.io/research/wsp-fly-maze/ai.md): Claude edited synaptic weights of a whole-brain FlyWire spiking model (no gradient descent) and raised escape from unseen mazes from about 4% to 99%. Human-readable: [English](https://nangmansung.github.io/research/wsp-fly-maze/), [Korean](https://nangmansung.github.io/research/wsp-fly-maze/ko.html)
+- [Can a language model program a fly brain directly?](https://nangmansung.github.io/research/wsp-fly-maze/ai.md): Claude edited synaptic weights of a whole-brain FlyWire spiking model (no gradient descent) and raised escape from unseen mazes from about 4% to 97.7–100% (best run 128/128). Human-readable: [English](https://nangmansung.github.io/research/wsp-fly-maze/), [Korean](https://nangmansung.github.io/research/wsp-fly-maze/ko.html)
 
 ## Optional
 

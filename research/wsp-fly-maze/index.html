@@ -4,11 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>An AI rewires a fly brain to escape mazes</title>
-    <meta
-      name="description"
-      content="Claude edits the synaptic weights of a whole-brain FlyWire model, without gradients, and fixes its steering: escape on unseen mazes goes from 4% to 99%."
-    />
+    <title>Can a language model program a fly brain directly?</title>
+    <meta name="description" content="Weight-space programming on the FlyWire connectome. Claude Opus 5.5 edited 0.01% of synapses and raised escape from unseen mazes from about 4% to 100%." />
     <meta name="date" content="2026-11-06" />
     <!-- AI용 자세한 버전 (같은 폴더의 ai.md) -->
     <link rel="alternate" type="text/markdown" href="ai.md" title="Detailed version for AI readers" />
@@ -204,7 +201,7 @@
     <d-front-matter>
       <script type="text/json">
         {
-          "title": "An AI rewires a fly brain to escape mazes",
+          "title": "Can a language model program a fly brain directly?",
           "published": "November 6, 2026",
           "authors": [
             {
@@ -269,26 +266,120 @@
     </script>
 
     <d-title>
-      <h1>An AI rewires a fly brain to escape mazes</h1>
+      <h1>Can a language model program a fly brain directly?</h1>
       <p>
-        Weight-space programming on the FlyWire connectome: Claude edits the synapses of a simulated whole fly brain,
-        without gradients, and fixes how it steers.
+        Weight-space programming on the FlyWire connectome. Claude Opus 5.5 edited 0.01% of synapses and raised escape from unseen mazes from about 4% to 100%.
       </p>
     </d-title>
 
     <d-byline></d-byline>
 
     <d-article>
-      <div class="tldr">
-        <b>TL;DR</b> We gave a spiking model of the whole fruit-fly brain (138,639 neurons, about 15 million connections) a
-        simple body and a maze. The unedited brain just walks in circles and escapes about 4% of the time. An AI editor
-        (Claude Opus 5.5) was allowed to change at most 1% of the existing connections and nothing else. The editor
-        could run up to 50 simulations. With that budget it found the fault itself: an imbalance in the steering
-        circuit. Its repair lifted escape on mazes it had never seen to 99–100%. Random edits and rule-based edits did
-        nothing. An editor that could only read the wiring diagram, with no simulations, blamed the wrong neurons.
-      </div>
+      <h2>1. Overview</h2>
+      <p>
+        A topic called
+        <a href="https://rikiyat.github.io/blog/weight-space-programming/">weight-space programming</a
+        ><d-cite key="rikiyat2026wsp"></d-cite> has caught my eye lately. The study came out around November 3, 2026
+        (Korean time). In short, a frontier language model edited the weights of small AI models directly and made them
+        perform better. For example, it changed just 0.016% of the weights of the small language model Qwen3.5-0.8B and
+        raised its score on math problems (MATH-500) from 7.9% to 48.1%.
+      </p>
+      <p>
+        Until now, neural networks have mostly been improved with learning algorithms. Ordinary networks are trained
+        with gradient descent; spiking neural networks (SNNs) often use learning rules such as STDP. Either way, the
+        weights are nudged step by step, following a fixed rule, in whatever direction improves performance, and nobody
+        needs to know what any single weight means. This study shows a different path: a language model reads a
+        network the way an engineer reads code, works out why it fails, and edits only the weights that matter.
+      </p>
+      <p>
+        Personally, this felt like "AI's first step into the realm of the gods." Imagine someone announcing that they
+        had rewired a frog's brain by hand and made the frog smarter. Before even getting to the ethics, people might
+        say we had truly stepped into that realm.
+      </p>
+      <p>
+        So I wondered what would happen if we applied this to the brain of a real animal. We cannot try it on a living
+        animal, so I tried it on the fruit fly brain, whose complete wiring diagram was recently published.
+      </p>
 
-      <h2>The video</h2>
+      <h2>2. Methods</h2>
+      <h3>The brain</h3>
+      <ul>
+        <li>
+          <b>Wiring diagram:</b> I downloaded the
+          <a href="https://zenodo.org/records/10676866">FlyWire whole-brain connectome of the fruit fly (release 783)</a
+          ><d-cite key="dorkenwald2024flywire,schlegel2024flywire"></d-cite>. It maps every neuron and synapse of an
+          adult fly brain from electron microscopy.
+        </li>
+        <li>
+          <b>Neuron model:</b> I used the
+          <a href="https://github.com/philshiu/Drosophila_brain_model">whole-brain fly model of Shiu et al. (2024, Nature)</a
+          ><d-cite key="shiu2024brain"></d-cite> unchanged: 138,639 neurons and about 15 million connections.
+          <ul>
+            <li>
+              Every neuron is the same simple LIF (leaky integrate-and-fire) unit. Input raises its voltage, the voltage
+              slowly leaks away, and when it crosses a threshold the neuron fires.
+            </li>
+            <li>
+              The only thing that differs between neurons is the connection matrix <em>W</em>. Each entry of
+              <em>W</em> is the number of synapses between two neurons, with an excitatory (+) or inhibitory (−) sign set
+              by the neurotransmitter.
+            </li>
+            <li>There are no learned parameters at all. To change what this brain does, you have to change <em>W</em>.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>Body and maze</h3>
+      <p>I attached a very simple body to the brain.</p>
+      <ul>
+        <li>
+          The fly walks constantly at 10 mm/s through a grid maze of 5 mm cells. It starts in one corner; reaching the
+          opposite corner counts as an escape.
+        </li>
+        <li>
+          Every 5 ms the brain and the body exchange three signals.
+          <ul>
+            <li>
+              <b>Heading input:</b> among the compass neurons (EPG), the ones that match the current heading are
+              stimulated.
+            </li>
+            <li>
+              <b>Goal input:</b> among the goal-direction neurons (FC2), the ones that match "the direction of the next
+              cell on the shortest path" are stimulated.
+            </li>
+            <li>
+              <b>Steering output:</b> the turn rate is set by the difference in firing between the left and right DNa02
+              neurons<d-cite key="rayshubskiy2020steering"></d-cite>. Turn rate = −5 × (right − left) deg/s.
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <p>
+        But the original brain turned left almost all the time, at about 90 degrees per second, wherever the goal was. So
+        the flies circled in place and only about 4% escaped.
+      </p>
+
+      <h3>The AI editor</h3>
+      <p>
+        In the original study, a frontier model edited the weights directly. Does the same approach work on a fly brain?
+        This time I had Claude Code (Claude Opus 5.5) edit <em>W</em> directly, under these rules:
+      </p>
+      <ul>
+        <li>Only existing connections can change. No new connections.</li>
+        <li>The excitatory/inhibitory sign cannot change.</li>
+        <li>A connection can grow to at most twice its original strength.</li>
+        <li>At most 1% of all connections can change.</li>
+      </ul>
+      <p>
+        The editor had a Python environment for analysing the wiring and a tool for running simulations. The key
+        condition was <b>how many simulations it could run</b>: 0 (wiring diagram only), 10 or 50.
+      </p>
+      <p>
+        After editing, the original and edited brains were compared on 16 mazes the editor had never seen. The same 128
+        flies with the same random noise were used for both brains, so every fly is a paired comparison.
+      </p>
+
+      <h2>3. Results</h2>
       <figure>
         <div class="video-wrap">
           <iframe
@@ -306,104 +397,6 @@
         </figcaption>
       </figure>
 
-      <h2>The idea: programming a network by editing its weights</h2>
-      <p>
-        This project follows the idea in
-        <a href="https://rikiyat.github.io/blog/weight-space-programming">"Sparks of Weight-Space Programming"</a>
-        <d-cite key="rikiyat2026wsp"></d-cite>. Neural networks are usually changed by training: compute a gradient,
-        nudge every weight a little, repeat. Weight-space programming asks a different question. Can a language model
-        read a network the way an engineer reads code, figure out why it fails, and fix it by hand-editing a few
-        specific weights?
-      </p>
-      <p>
-        A fly brain is a good test for this because its "weights" are real. The FlyWire project mapped every neuron and
-        synapse in an adult <i>Drosophila</i> brain from electron microscopy
-        <d-cite key="dorkenwald2024flywire,schlegel2024flywire"></d-cite>. Shiu et al. turned that wiring diagram into
-        a working simulation <d-cite key="shiu2024brain"></d-cite>. Every neuron is the same simple
-        leaky integrate-and-fire unit. The only thing that differs between neurons is the connection matrix <i>W</i>,
-        where each entry is the number of synapses from one neuron to another, signed by its neurotransmitter.
-        There are no learned parameters at all. If you want the brain to behave differently, <i>W</i> is the only
-        thing you can change.
-      </p>
-
-      <h2>The setup</h2>
-      <h3>A body and a maze</h3>
-      <p>
-        We connected the unmodified Shiu et al. model to a very simple body. The fly walks at a constant 10 mm/s
-        through a grid maze of 5 mm cells. It must get from one corner to the opposite corner within 20 s (6×6
-        maze) or 30 s (8×8 maze). Every 5 ms, brain and body exchange three signals:
-      </p>
-      <ul>
-        <li>
-          <b>Heading in.</b> The compass neurons of the central complex (EPG) that match the fly's current heading
-          are driven at 150 Hz. Think of it as a visible landmark.
-        </li>
-        <li>
-          <b>Goal in.</b> The goal neurons (FC2) that match the direction to the next cell on the shortest path are
-          driven the same way. The brain is told <i>where</i> to go next. Its job is to <i>steer</i> there.
-        </li>
-        <li>
-          <b>Steering out.</b> The fly's turn rate is read from the left and right DNa02 descending neurons, which
-          are known to control turning in walking flies <d-cite key="rayshubskiy2020steering"></d-cite>:
-          <d-math>\dot\theta = -5\,(r_{\text{DNa02,R}} - r_{\text{DNa02,L}})</d-math> deg/s per Hz.
-        </li>
-      </ul>
-      <p>
-        Between heading in and steering out sits a circuit biologists have worked out in detail. PFL3 neurons compare
-        the current heading with the goal and drive the fly to turn toward it
-        <d-cite key="westeinde2024steering,mussellspires2024goal"></d-cite>. In principle, then, the whole loop
-        should work.
-      </p>
-
-      <h3>What goes wrong</h3>
-      <p>
-        It doesn't work. The unedited brain turns left almost all the time, at about +90°/s, no matter where the goal
-        is. Left DNa02 fires around 22 Hz and right DNa02 around 4 Hz. The flies spin in circles near the start, and
-        only about 4% of them escape (6% in the 6×6 test mazes, 2% in the 8×8).
-      </p>
-
-      <h3>The rules for the AI editor</h3>
-      <p>
-        The editor was Claude Opus 5.5, run through Claude Code in headless mode, one call per turn. Its system prompt
-        was just "Answer the user's request." All tools, plug-ins and sub-agents were switched off. The editor could do
-        only two things, by writing one block per turn:
-      </p>
-      <ul>
-        <li>
-          <b>Run Python</b> in a sandboxed kernel holding the full connectome, neuron annotations and synapse positions,
-          up to 300 times. This is where it analyzes the wiring and writes its edits.
-        </li>
-        <li>
-          <b>Request a simulation</b>, either of practice mazes or of a probe experiment of its own design (for
-          example "fix the heading, sweep the goal, record these neurons"). Each simulation runs the original and the
-          edited brain side by side. We varied this budget: <b>0</b>, <b>10</b> or <b>50</b> simulations.
-        </li>
-      </ul>
-      <p>The edit itself was tightly restricted:</p>
-      <ul>
-        <li>Only connections that already exist can change. No new wiring.</li>
-        <li>A connection can never flip sign, so an excitatory synapse stays excitatory.</li>
-        <li>No connection can more than double in strength. Setting one to zero, i.e. removing it, is allowed.</li>
-        <li>At most 1% of all connections (150,919 of 15,091,983) may differ from the original.</li>
-      </ul>
-      <p>
-        Global tricks were explicitly not what we were after. The task asks the editor to find out what goes wrong and
-        justify each change with evidence.
-      </p>
-      <p>
-        Each editor started fresh in an empty folder with no memory, project files or notes. It never saw the test
-        mazes, our own analysis of the problem, or this blog. We recorded every API request and checked the full
-        context for leaks.<d-footnote>The audit searched every request for the test-maze identifiers and for the
-        names of the neurons we had suspected. Every hit traced back to something harmless, such as output from the
-        editor's own code, its own words, or library file paths.</d-footnote>
-      </p>
-      <p>
-        After the editor finished, both brains were run on hidden test mazes: 8 different 6×6 mazes and 8 different
-        8×8 mazes, each with 8 starting headings. That makes 128 flies per brain. Original and edited brains got
-        exactly the same flies and the same random noise, so the comparison is paired.
-      </p>
-
-      <h2>Results</h2>
       <figure>
         <img src="results.png" alt="Bar chart of escape-rate change. Controls and wiring-only AI near zero; 10-simulation AI +30 to +78; 50-simulation AI +94 and +96, near the ceiling." />
         <figcaption>
@@ -436,323 +429,81 @@
           </tbody>
         </table>
       </div>
+
+      <ul>
+        <li>
+          <b>0 simulations:</b> all three editors failed. All three spotted a conspicuous left/right asymmetry in the
+          wiring of a neuron type called AOTU019 and "fixed" it, with no effect. Later, even switching AOTU019 off
+          entirely left the left bias in place. A plausible explanation drawn from the wiring alone was wrong.
+        </li>
+        <li>
+          <b>10 simulations:</b> all three improved escape a lot (+30 to +78 points). They fixed different things: two
+          balanced the left and right PFL3 neurons, which compare heading with goal, while the best one adjusted the
+          connections onto the steering neurons DNa02.
+        </li>
+        <li>
+          <b>50 simulations:</b> both editors got almost every fly out (128 and 125 of 128). Both identified a
+          left/right imbalance in PFL3 as the cause<d-cite key="westeinde2024steering,mussellspires2024goal"></d-cite>:
+          the goal neurons (FC2) send fewer synapses to left PFL3 than to right PFL3, and the circuit downstream
+          amplifies this small difference into a state where "left always wins." The best edit changed only 542
+          connections, 0.01% of all synapses.
+        </li>
+        <li>
+          <b>Controls without AI:</b> ten random edits of the same size (−2.3 to +2.3 points) and an edit that made every
+          left/right-asymmetric cell type symmetric by rule (−3.1 points) did nothing. Applying the AI's kind of edit to
+          the wrong hemisphere more than doubled left turning. The effect came not from changing connections, but from
+          knowing which ones to change.
+        </li>
+      </ul>
+
+      <h2>4. Limitations</h2>
+      <h3>The program told the brain where the goal was</h3>
       <p>
-        The pattern is clear. With no simulations, all three editors failed. They read the wiring diagram, found a
-        conspicuous left/right asymmetry in a neuron type called AOTU019 that projects onto DNa02, and "fixed" it. The
-        fix did nothing. We later checked this ourselves: even silencing AOTU019 completely leaves the left bias in
-        place. A plausible story from the wiring alone was simply wrong.
+        The program knows the whole maze. Every 5 ms it computes the shortest path from the current cell to the exit and
+        sets the goal direction toward the centre of the next cell on that path. It then stimulates the FC2 neurons for
+        that direction at 150 Hz. In effect, it tells the brain "go this way."
       </p>
       <p>
-        With 10 simulations, every editor found the real cause and the flies improved a lot. With 50, both editors
-        reached the ceiling. The best one changed only 542 connections, 0.01% of all synapses, and every one of the
-        128 test flies escaped. No editor ever lost a fly that the original brain had saved.
+        This is what "local beacon" means in the methods. Picture a small flag in the next cell; when the fly gets
+        there, the flag moves on to the cell after.
       </p>
-
-      <h3>Controls</h3>
+      <h3>Why FC2</h3>
       <p>
-        Could any edit of this size do the same? We tested edits made without AI on the same 128 flies:
-      </p>
-      <ul>
-        <li>
-          <b>10 random edits.</b> Each scaled the outputs of randomly chosen central-brain neurons by ×1.9, about
-          3,400 connections in total, the same size as the largest AI edit. The effect ranged from −2.3 to +2.3
-          points, and the flies kept turning at about +90°/s.
-        </li>
-        <li>
-          <b>Rule-based symmetrization.</b> Take every cell type whose left and right copies differ, and equalize their
-          total output, most asymmetric types first, until the 1% budget is used up. This changed 150,652 connections
-          and gave −3.1 points.
-        </li>
-        <li>
-          <b>The right idea on the wrong side.</b> Copying one AI editor's change onto the right-hemisphere PFL3
-          neurons instead of the left more than doubled the left turn, to about +200°/s.
-        </li>
-      </ul>
-      <p>So the gain comes from knowing <i>which</i> connections to change, not from changing connections in general.</p>
-
-      <h2>What the AI found and fixed</h2>
-      <p>
-        The two 50-simulation editors worked independently, and their reports tell the same story. The compass and goal
-        signals were fine: activity peaks sat within about 1° of the true heading and goal. The fault was in the
-        comparator, the PFL3 neurons, and it was a left/right imbalance:
-      </p>
-      <ul>
-        <li>The goal neurons (FC2) send about 14% fewer synapses to left PFL3 than to right PFL3 (1,152 vs 1,318).</li>
-        <li>Right PFL3 neurons also have more output synapses overall (15,519 vs 13,534).</li>
-        <li>
-          Downstream, crossing inhibitory neurons in the lateral accessory lobe turn this small imbalance into an
-          all-or-nothing lock. One editor called it "winner-take-all": the left steering channel wins and the fly
-          always turns left.
-        </li>
-      </ul>
-      <p>
-        Both editors confirmed this causally before editing. Adding a little extra drive to left PFL3 bent the turn
-        rate smoothly from +45°/s through 0 to −110°/s, while extra drive on the right made the left turn worse. One
-        editor fit the open-loop response as <d-math>\text{turn} \approx 96 + 86\sin(\text{goal} - \text{heading})</d-math>
-        deg/s. The fly has a steering signal, but a constant bias larger than that signal, so it can never settle on
-        a heading.
-      </p>
-      <p>The repair, as both editors built it, had three layers:</p>
-      <ol>
-        <li>
-          <b>Rebalance PFL3.</b> Editor #1 strengthened FC2 → left PFL3 by ×1.30, a value it picked from a measured
-          dose–response curve. Editor #2 doubled the left PFL3 outputs instead.
-        </li>
-        <li>
-          <b>Tune individual neurons.</b> Both revived PFL3 cells that were nearly silent and cancelled the residual
-          biases of single goal columns. Editor #1 did this with small per-cell factors. Editor #2 used a regression of
-          turn rate on 24 PFL3 firing rates.
-        </li>
-        <li>
-          <b>Turn up the steering gain.</b> Both roughly doubled about 50 inputs onto DNa02 that carry the turning
-          signal. This makes the fly's "steering wheel" more responsive without bringing back the bias.
-        </li>
-      </ol>
-      <p>
-        Each layer was kept only if a new simulation showed it helped. Both editors also kept careful lists of what
-        they tried and threw away, for example rebalancing the heading input or boosting all PFL3 outputs uniformly.
-        The few flies that still fail are timeouts in long mazes: they are on the right path but lose time in wide
-        turns at corners.
+        In real flies, FC2 neurons are thought to represent the direction the fly wants to go (its goal direction). A
+        real fly sets this direction from memory or learning. PFL3 neurons then compare the current heading (EPG) with
+        the goal direction (FC2) and decide which way to turn. This experiment skips the step where a real fly chooses
+        its goal and feeds a ready-made goal direction straight into FC2.
       </p>
       <p>
-        A run with 50 simulations took 6–8 hours and about 270–320 turns of the editor, mostly spent waiting for the
-        simulations to finish. The editor wrote about 0.4 million output tokens per run. The 10-simulation runs took
-        1–2 hours.
+        Heading works the same way. The program knows the fly's true heading and stimulates the matching compass neurons
+        (EPG). This corresponds to a fly knowing its heading from a visible landmark.
       </p>
-
-      <h2>Caveats</h2>
-      <ul>
-        <li>
-          <b>Few runs.</b> There are 3 runs at budgets 0 and 10, and 2 at budget 50. The direction of the result is
-          clear, but the spread between runs is large: the 10-simulation runs range from +30 to +78.
-        </li>
-        <li>
-          <b>The brain only steers.</b> The maze is solved for it: the goal neurons are told the direction of the next
-          cell. What was repaired is a steering reflex, not navigation or planning.
-        </li>
-        <li>
-          <b>It is a model, not a fly.</b> The Shiu et al. model uses identical point neurons with no plasticity,
-          neuromodulation or gap junctions. The left bias may be a property of this simplified model, or of
-          proofreading differences between hemispheres, rather than of real flies. Its cause, an asymmetry in PFL3
-          wiring, is a prediction one could check, not a finding about biology.
-        </li>
-        <li>
-          <b>Side effects were only lightly tested.</b> The response to a sugar stimulus, activity at rest and the
-          number of runaway neurons were all unchanged. These checks are coarse, though, and a stronger test of
-          unrelated behaviors is still needed.
-        </li>
-      </ul>
-
-      <h2>What's next</h2>
+      <h3>So what did this experiment test?</h3>
       <p>
-        The result we find most interesting is the gap between 0 and 10 simulations. Reading a connectome is not
-        enough. Even a strong model, staring at 15 million edges, latches onto a convincing but wrong asymmetry. Being
-        able to run a handful of experiments, record neurons and test hypotheses is what turns that guess into a
-        diagnosis. Next we want to try more runs per condition, harder tasks where the fix is not a single imbalance,
-        and stronger checks that the rest of the brain still works.
+        All the brain had to do was "turn toward the direction it is given." Route finding and planning were done by the
+        program. Yet the original brain could not even do this simple job: it kept turning left even when the goal was
+        on its right. What the AI repaired is this turn-toward-goal reflex.
       </p>
-      <h2>Methods in detail</h2>
-      <p>This section lists everything needed to repeat the experiment.</p>
-
-      <h3>1. Brain model</h3>
+      <h3>Other limitations</h3>
       <ul>
         <li>
-          <b>Connectome:</b> FlyWire release 783, from Zenodo 10676866, CC-BY 4.0. This gives 138,639 neurons and
-          15,091,983 connections. <i>W</i> is the synapse count between each pair, made negative when the presynaptic
-          neuron is GABAergic or glutamatergic.
+          <b>Few runs.</b> Each condition was run only 2–3 times. The direction of the result is clear, but runs vary a
+          lot.
         </li>
         <li>
-          <b>Neuron model:</b> leaky integrate-and-fire, as in Shiu et al. <d-cite key="shiu2024brain"></d-cite>.
-          <ul>
-            <li>
-              Equations: <d-math>dv/dt = (v_0 - v + g)/\tau_m</d-math> and <d-math>dg/dt = -g/\tau</d-math>.
-            </li>
-            <li>
-              Constants: <d-math>v_0 = v_\text{reset} = -52</d-math> mV, threshold −45 mV,
-              <d-math>\tau_m = 20</d-math> ms, <d-math>\tau = 5</d-math> ms, refractory period 2.2 ms.
-            </li>
-            <li>
-              Synapses: a spike adds <d-math>0.275\,W_{ij}</d-math> mV to the target after 1.8 ms. There is no
-              background drive.
-            </li>
-          </ul>
-        </li>
-        <li>
-          <b>Implementation:</b> our own event-driven PyTorch version on GPU, with a time step of 0.1 ms.
-          <ul>
-            <li>
-              We checked it against a Brian2 transcription of the original Shiu et al. code using a sugar-neuron
-              stimulus, 30 trials.
-            </li>
-            <li>The per-neuron spike counts correlated at r = 0.9998, and total spikes differed by 2%.</li>
-          </ul>
+          <b>A model, not a fly.</b> All neurons in this model are simple point neurons, with no synaptic plasticity or
+          neuromodulation. The left bias may be a property of the simplified model rather than of real flies. The PFL3
+          wiring asymmetry is a prediction worth testing, not a biological finding.
         </li>
       </ul>
 
-      <h3>2. Body, maze and interface</h3>
-      <ul>
-        <li>
-          <b>Mazes:</b> perfect mazes generated by depth-first backtracking from a seed. Cells are 5 mm. The fly
-          starts at the centre of cell (0, 0) and the exit is the opposite corner.
-        </li>
-        <li>
-          <b>Movement:</b> the fly walks at a constant 10 mm/s. A wall stops motion along that axis, so the fly
-          slides along it.
-        </li>
-        <li><b>Coupling:</b> brain and body exchange signals every 5 ms.</li>
-        <li>
-          <b>Heading input:</b> the EPG neurons whose ellipsoid-body angle is within ±30° of the current heading get
-          150 Hz Poisson input. Each input event is strong enough to make the neuron spike.
-        </li>
-        <li>
-          <b>Goal input:</b> the FC2A/B/C neurons whose goal angle is within ±30° of the goal get the same input. The
-          goal is the direction to the centre of the next cell on the shortest path to the exit, recomputed every
-          5 ms.
-        </li>
-        <li>
-          <b>How the angles were assigned:</b> from synapse positions, not from <i>W</i>.
-          <ul>
-            <li>EPG: the angle of its dendrites in the ellipsoid body.</li>
-            <li>FC2: the position of its outputs in the fan-shaped body, mapped through the PFL3 projection pattern.</li>
-          </ul>
-        </li>
-        <li>
-          <b>Readout:</b> turn rate = −5°/s per Hz × (DNa02 right − DNa02 left). Each rate is the spike train
-          filtered with a 50 ms exponential.
-        </li>
-        <li>
-          <b>Trial:</b> 200 ms of settling with goal = heading, then the run. The time limit is 20 s for 6×6 mazes and
-          30 s for 8×8. A fly counts as escaped when it reaches the exit cell.
-        </li>
-      </ul>
-
-      <h3>3. Edit rules</h3>
-      <p>The function <code>save_edit</code> enforces these rules and refuses any call that breaks one.</p>
-      <ul>
-        <li>Only existing connections may change.</li>
-        <li>No sign changes. Setting a weight to 0, which removes the connection, is allowed.</li>
-        <li><d-math>|w_\text{new}| \le 2|w_\text{orig}|</d-math> for every connection.</li>
-        <li>At most 150,919 connections, 1% of the total, may differ from the original.</li>
-      </ul>
-
-      <h3>4. The editor</h3>
-      <ul>
-        <li>
-          <b>Model:</b> <code>claude-opus-5-5</code> with effort "high" and adaptive thinking, called through Claude
-          Code 2.1 in headless mode (<code>claude -p</code>, one call per turn, continued with
-          <code>--resume</code>).
-        </li>
-        <li><b>System prompt:</b> "Answer the user's request."</li>
-        <li>
-          <b>Isolation:</b>
-          <ul>
-            <li>All tools, MCP servers and sub-agents were disabled.</li>
-            <li>Each run started in a new empty directory with no CLAUDE.md, memory, skills or project settings.</li>
-            <li>
-              A local proxy recorded every API request, and we audited each run's full context for leaked
-              information.
-            </li>
-          </ul>
-        </li>
-        <li>
-          <b>Task prompt:</b> it describes the model, the body, the edit rules, the unedited brain's practice
-          recording, the two tools, and how to work: diagnose first, localize causally, measure with paired
-          comparisons, and explain every step. Gradient descent, any iterative weight fitting, and simulating the
-          network inside the kernel were forbidden.
-        </li>
-        <li>
-          <b>One block per reply:</b> every reply contains a plain-English explanation and exactly one block.
-          <ul>
-            <li>
-              <code>```python</code>: runs in a persistent sandboxed kernel on CPU, at most 300 times, each up to
-              900 s and 96 GB, with output cut at 10,000 characters. The kernel holds <i>W</i>, neuron annotations,
-              compass and goal angles, connections by neuropil and synapse coordinates.
-            </li>
-            <li>
-              <code>```forward</code>: one simulation, of one of two kinds.
-              <ul>
-                <li>
-                  A <b>maze pass</b> runs up to 64 flies on practice mazes 100–199 × 8 headings, about 12 minutes.
-                  With <code>"both"</code>, the original and edited brain run on the same flies and the same
-                  random numbers, and the paired difference and its SE are reported.
-                </li>
-                <li>
-                  A <b>probe</b> runs up to 64 open-loop conditions, each with fixed heading and goal, for up to
-                  2 s. A probe can stimulate neurons at up to 300 Hz, silence up to 200 neurons, and record up to
-                  5,000. It takes about 1–3 minutes.
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-        <li><b>Budget:</b> 0, 10 or 50 simulations. Requests that fail validation are not counted.</li>
-        <li>
-          <b>Hand-offs:</b> every 40 turns a new conversation starts. It receives the task text, the edit summary,
-          the editor's own notes file and its last message. The kernel and the edit carry over.
-        </li>
-        <li>
-          <b>Ending:</b> a run ends when the simulation budget is used up or 300 Python runs are reached, with a
-          cap of 400 turns. The editor then writes a final answer, and the edit on disk at that point is submitted.
-        </li>
-      </ul>
-
-      <h3>5. Evaluation</h3>
-      <ul>
-        <li>
-          <b>Hidden test mazes:</b> 6×6 seeds 0–7 with a 20 s limit, and 8×8 seeds 1000–1007 with a 30 s limit.
-          Practice mazes were seeds 100–199 and 6×6 only.
-        </li>
-        <li>
-          <b>Flies:</b> 8 starting headings (−180° to 135° in 45° steps) per maze gives 64 flies per set and 128 per
-          brain.
-        </li>
-        <li>
-          <b>Paired design:</b> the original and edited brains run with the same noise seed (424242), so each fly is
-          compared with itself.
-        </li>
-        <li>
-          <b>Reported per set:</b> escape rate, paired gain with its SE, flies rescued and lost, and mean turn rate.
-        </li>
-        <li>
-          <b>Side-effect checks:</b> response to a sugar-neuron stimulus (per-neuron rate correlation and total
-          spikes), activity with no input, and the count of steering neurons above 100 Hz.
-        </li>
-      </ul>
-
-      <h3>6. Controls</h3>
-      <ul>
-        <li>
-          <b>Random:</b> 10 edits with random-number seed 2026. Each picks random central-brain neurons until their
-          outgoing connections total about 3,419, then multiplies those weights by 1.9.
-        </li>
-        <li>
-          <b>Rule-based symmetrization:</b> for each cell type, the total left and right output is scaled to its
-          geometric mean, most asymmetric types first, until the 1% budget is used up. This came to 251 types and
-          150,652 connections.
-        </li>
-        <li>
-          <b>Targeted variants:</b> each was evaluated the same way.
-          <ul>
-            <li>left PFL3 outputs ×1.9</li>
-            <li>PFL2 ×1.8</li>
-            <li>right PFL3 + PFL2, the wrong side</li>
-            <li>both PFL3 + PFL2</li>
-          </ul>
-        </li>
-      </ul>
-
-      <h3>7. Compute</h3>
-      <ul>
-        <li>
-          <b>Hardware:</b> 4× NVIDIA TITAN RTX. Each run used 2 GPUs, so the original and edited brain could run in
-          parallel.
-        </li>
-        <li><b>Run time:</b> 0-simulation runs took about 5 minutes, 10-simulation runs 1–2 hours, and 50-simulation runs 6–8 hours.</li>
-        <li><b>Evaluation time:</b> about 30 minutes per edit.</li>
-        <li>
-          <b>Software:</b> Python 3.11, PyTorch with CUDA, numpy 2.3, Brian2 2.9 for the check above.
-        </li>
-      </ul>
+      <h2>More detail</h2>
+      <p>
+        This post is the short, readable version. The full settings, the complete instructions given to the AI, each
+        run's diagnosis and edits, and the editors' own reports are all in the document behind the
+        <a href="ai.md"><b>AI</b></a> button at the top right. Give that document to your own AI agent and ask it
+        whatever you want to know.
+      </p>
     </d-article>
 
     <d-appendix></d-appendix>

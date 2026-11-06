@@ -1,4 +1,4 @@
-# An AI rewires a fly brain to escape mazes — detailed version for AI readers
+# Can a language model program a fly brain directly? — detailed version for AI readers
 
 - Author: nangmansung (SKKU)
 - Date: 2026-11-06
@@ -756,7 +756,7 @@ python harness/blog/make_figures.py [--ko]; python harness/video/make_video.py [
 
 
 ## 13. Corrections to the human-readable post, and open unknowns
-Compared with the English post as of 2026-11-06 (the Korean post says the same). Where they differ, this file is correct.
+These corrections refer to the first version of the human-readable post (published 2026-11-06). The rewritten version (also 2026-11-06) no longer contains most of these statements and fixes the main ones (items 1–5 below). Where any version differs from this file, this file is correct.
 
 ### Verified as consistent
 - Escape 6%/2% (overall about 4%); +90 deg/s; DNa02 22/4 Hz.
