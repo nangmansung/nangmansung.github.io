@@ -10,6 +10,8 @@ lang: ko
 authors:
   - name: nangmansung
     url: "https://github.com/nangmansung"
+    affiliations:
+      name: SKKU
 
 bibliography: 2026-11-05-hello-blog.bib
 ---

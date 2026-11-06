@@ -2,7 +2,7 @@
 layout: default
 permalink: /ko/blog/
 title: 블로그
-nav: true
+nav: false # hidden from the menu; posts are still listed here
 nav_order: 1
 lang: ko
 ref: page-blog

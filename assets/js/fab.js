@@ -27,6 +27,8 @@
       "authors:",
       "  - name: nangmansung",
       '    url: "https://github.com/nangmansung"',
+      "    affiliations:",
+      "      name: SKKU",
       "---",
       "",
       '<div class="tldr" markdown="1">',
