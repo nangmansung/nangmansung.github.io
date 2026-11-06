@@ -3,14 +3,20 @@
   nangmansung 블로그 기본 HTML 양식
 
   사용법
-  1. 이 파일을 복사해서 이름을 영어로 바꾸세요. 예: ring-attractor.html
-  2. "여기를 바꾸세요" 라고 적힌 부분을 내 내용으로 바꾸세요.
-  3. 블로그의 + 버튼 → "HTML 업로드"로 올리세요.
+  1. 글마다 영어 폴더 이름을 하나 정하세요. 예: ring-attractor/
+  2. 언어별로 이 파일을 복사해서 폴더에 넣으세요.
+       영어판   → ring-attractor/index.html   (html lang="en")
+       한국어판 → ring-attractor/ko.html      (html lang="ko")
+     한 언어로만 쓸 거면 index.html 하나만 두고 아래 html lang 을 그 언어로 맞추세요.
+     (그 글은 다른 언어 목록에도 "KOR only" / "ENG only" 표시와 함께 보여요.)
+  3. "여기를 바꾸세요" 라고 적힌 부분을 내 내용으로 바꾸세요.
+  4. 그림 파일도 같은 폴더에 넣고, 블로그의 + 버튼 → "HTML 업로드"로 폴더째 올리세요.
      blog 페이지에서 누르면 blog 글 목록에, Research 페이지에서 누르면 Research 목록에 추가돼요.
-     그림 파일이 있으면 폴더(예: ring-attractor/)에 index.html 과 그림을 같이 넣어서 폴더째 올리세요.
+     위쪽의 KOR | ENG 버튼은 같은 폴더의 다른 언어 파일로 자동으로 연결돼요.
 
   미리보기: 이 파일을 더블클릭하면 브라우저에서 바로 볼 수 있어요 (인터넷 연결 필요).
 -->
+<!-- 여기를 바꾸세요: 이 파일의 언어 (영어 en / 한국어 ko) -->
 <html lang="ko">
   <head>
     <meta charset="utf-8" />
@@ -66,9 +72,26 @@
         padding: 14px 24px;
         font-size: 15px;
       }
+      .site-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
       .site-nav a {
         color: var(--green);
         text-decoration: none;
+      }
+      .lang-switch a,
+      a.lang-switch {
+        color: var(--text-light);
+      }
+      .lang-switch .lang-current {
+        font-weight: 600;
+        color: var(--green);
+      }
+      .lang-switch .lang-sep {
+        margin: 0 2px;
+        opacity: 0.5;
       }
 
       d-title {
@@ -166,18 +189,39 @@
       </script>
     </d-front-matter>
 
-    <!-- 돌아가기 링크: blog에 올리면 blog로, Research에 올리면 Research로 자동으로 바뀌어요 -->
-    <nav class="site-nav"><a id="back-link" href="https://nangmansung.github.io/">← nangmansung</a></nav>
+    <!-- 돌아가기 링크와 KOR | ENG 버튼: 올린 위치와 파일 언어에 맞게 자동으로 바뀌어요. 보통은 바꿀 필요 없어요. -->
+    <nav class="site-nav">
+      <a id="back-link" href="https://nangmansung.github.io/">← nangmansung</a>
+      <a id="lang-switch" class="lang-switch" href="#">
+        <span data-l="ko">KOR</span><span class="lang-sep">|</span><span data-l="en">ENG</span>
+      </a>
+    </nav>
     <script>
       (function () {
-        var a = document.getElementById("back-link");
+        var ko = (document.documentElement.lang || "en").toLowerCase().indexOf("ko") === 0;
         var path = location.pathname;
-        if (path.indexOf("/posts/") === 0) {
-          a.href = "/blog/";
-          a.textContent = "← blog";
-        } else if (path.indexOf("/research/") === 0) {
-          a.href = "/research/";
-          a.textContent = "← Research";
+        var back = document.getElementById("back-link");
+        var section = path.indexOf("/posts/") === 0 ? "blog" : path.indexOf("/research/") === 0 ? "research" : null;
+        if (section) {
+          back.href = (ko ? "/ko/" : "/") + section + "/";
+          back.textContent = "← " + (section === "blog" ? (ko ? "블로그" : "blog") : ko ? "연구" : "Research");
+        }
+        // KOR | ENG: index.html (English) <-> ko.html (Korean) in the same folder.
+        // If the other-language file does not exist, go to that language's list instead.
+        var sw = document.getElementById("lang-switch");
+        sw.querySelector('[data-l="' + (ko ? "ko" : "en") + '"]').className = "lang-current";
+        var dir = path.replace(/[^/]*$/, "");
+        var sibling = dir + (ko ? "index.html" : "ko.html");
+        var fallback = (ko ? "/" : "/ko/") + (section || "blog") + "/";
+        sw.href = sibling;
+        if (location.protocol.indexOf("http") === 0) {
+          fetch(sibling, { method: "HEAD" })
+            .then(function (r) {
+              if (!r.ok) sw.href = fallback;
+            })
+            .catch(function () {
+              sw.href = fallback;
+            });
         }
       })();
     </script>
