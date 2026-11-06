@@ -1,0 +1,9 @@
+{%- comment -%}
+  Badge for a post shown in a list of the other language (it has no translation there).
+  Usage: {% include lang_badge.liquid post=post %}
+{%- endcomment -%}
+{%- assign badge_cur = page.lang | default: site.lang -%}
+{%- assign badge_post = include.post.lang | default: site.lang -%}
+{%- if badge_post != badge_cur -%}
+  <span class="lang-badge" lang="{{ badge_post }}">{% if badge_post == 'ko' %}KOR only{% else %}ENG only{% endif %}</span>
+{%- endif -%}

@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>AI가 초파리 뇌의 배선을 고쳐 미로를 탈출시키다</title>
+    <meta name="description" content="Claude가 FlyWire 전뇌 모델의 시냅스 가중치를 경사하강법 없이 직접 고쳐, 처음 보는 미로 탈출률을 4%에서 99%로 올렸다." />
+    <meta name="date" content="2026-11-06" />
+
+    <script src="https://nangmansung.github.io/assets/js/distillpub/template.v2.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300..700;1,300..700&family=Noto+Sans+KR:wght@300..700&family=JetBrains+Mono:wght@400;600&display=swap"
+    />
+
+    <style>
+      :root {
+        --text: #333333;
+        --text-light: #6b7280;
+        --green: #1f8a5b;
+        --green-light: #a9d6bd;
+        --band: #f2f8f4;
+        --rule: rgba(0, 0, 0, 0.1);
+        --font-sans: "Source Sans 3", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Helvetica, Arial, sans-serif;
+        --font-mono: "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+      }
+      html {
+        font-family: var(--font-sans);
+        color: var(--text);
+        background: #ffffff;
+        -webkit-font-smoothing: antialiased;
+      }
+      d-title,
+      d-byline,
+      d-article,
+      d-appendix {
+        font-family: var(--font-sans);
+      }
+      code,
+      pre {
+        font-family: var(--font-mono);
+      }
+
+      .site-nav {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 14px 24px;
+        font-size: 15px;
+      }
+      .site-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .site-nav a {
+        color: var(--green);
+        text-decoration: none;
+      }
+      .lang-switch a,
+      a.lang-switch {
+        color: var(--text-light);
+      }
+      .lang-switch .lang-current {
+        font-weight: 600;
+        color: var(--green);
+      }
+      .lang-switch .lang-sep {
+        margin: 0 2px;
+        opacity: 0.5;
+      }
+
+      d-title {
+        padding: 48px 0 32px;
+        background-color: var(--band);
+      }
+      d-title h1 {
+        color: #222222;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      d-title p {
+        font-size: 21px;
+        font-weight: 300;
+        line-height: 1.45;
+        color: #555555;
+      }
+
+      d-article {
+        font-size: 17px;
+        line-height: 1.6;
+        color: var(--text);
+      }
+      @media (min-width: 1024px) {
+        d-article {
+          font-size: 18px;
+        }
+      }
+      d-article h2,
+      d-article h3 {
+        font-weight: 600;
+      }
+      d-article a {
+        color: var(--green);
+        border-bottom: none;
+        text-decoration: underline 1px var(--green-light);
+        text-underline-offset: 3px;
+      }
+      d-article a:hover {
+        color: var(--green-light);
+        border-bottom: none;
+      }
+      d-article p code,
+      d-article li code {
+        padding: 1px 5px;
+        font-size: 0.85em;
+        background-color: #f1f3f6;
+        border-radius: 4px;
+      }
+      d-article pre {
+        padding: 12px 14px;
+        font-size: 14px;
+        background-color: #f1f3f6;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+      d-article figure img {
+        width: 100%;
+        border-radius: 4px;
+      }
+      d-article figcaption {
+        font-size: 0.9em;
+        color: var(--text-light);
+      }
+
+      d-math[block] {
+        display: block;
+        text-align: center;
+      }
+      .tldr {
+        padding: 14px 18px;
+        margin: 8px 0 24px;
+        background-color: var(--band);
+        border-left: 3px solid var(--green);
+        border-radius: 4px;
+      }
+
+      /* added for this post */
+      .video-wrap {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #f1f3f6;
+      }
+      .video-wrap video,
+      .video-wrap iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+      .table-wrap {
+        overflow-x: auto;
+        margin: 8px 0 24px;
+      }
+      d-article table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88em;
+        font-variant-numeric: tabular-nums;
+      }
+      d-article th,
+      d-article td {
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--rule);
+        text-align: right;
+        vertical-align: top;
+      }
+      d-article th:first-child,
+      d-article td:first-child {
+        text-align: left;
+      }
+      d-article th {
+        font-weight: 600;
+        border-bottom: 1.5px solid #999;
+      }
+      d-article tr.best td {
+        background: var(--band);
+      }
+    </style>
+  </head>
+
+    <body>
+    <d-front-matter>
+      <script type="text/json">
+        {
+          "title": "AI가 초파리 뇌의 배선을 고쳐 미로를 탈출시키다",
+          "published": "November 6, 2026",
+          "authors": [
+            {
+              "author": "nangmansung",
+              "authorURL": "https://github.com/nangmansung",
+              "affiliations": [{ "name": "소속", "url": "" }]
+            }
+          ]
+        }
+      </script>
+    </d-front-matter>
+
+    <!-- 돌아가기 링크와 KOR | ENG 버튼: 올린 위치와 파일 언어에 맞게 자동으로 바뀌어요. 보통은 바꿀 필요 없어요. -->
+    <nav class="site-nav">
+      <a id="back-link" href="https://nangmansung.github.io/">← nangmansung</a>
+      <a id="lang-switch" class="lang-switch" href="#">
+        <span data-l="ko">KOR</span><span class="lang-sep">|</span><span data-l="en">ENG</span>
+      </a>
+    </nav>
+    <script>
+      (function () {
+        var ko = (document.documentElement.lang || "en").toLowerCase().indexOf("ko") === 0;
+        var path = location.pathname;
+        var back = document.getElementById("back-link");
+        var section = path.indexOf("/posts/") === 0 ? "blog" : path.indexOf("/research/") === 0 ? "research" : null;
+        if (section) {
+          back.href = (ko ? "/ko/" : "/") + section + "/";
+          back.textContent = "← " + (section === "blog" ? (ko ? "블로그" : "blog") : ko ? "연구" : "Research");
+        }
+        // KOR | ENG: index.html (English) <-> ko.html (Korean) in the same folder.
+        // If the other-language file does not exist, go to that language's list instead.
+        var sw = document.getElementById("lang-switch");
+        sw.querySelector('[data-l="' + (ko ? "ko" : "en") + '"]').className = "lang-current";
+        var dir = path.replace(/[^/]*$/, "");
+        var sibling = dir + (ko ? "index.html" : "ko.html");
+        var fallback = (ko ? "/" : "/ko/") + (section || "blog") + "/";
+        sw.href = sibling;
+        if (location.protocol.indexOf("http") === 0) {
+          fetch(sibling, { method: "HEAD" })
+            .then(function (r) {
+              if (!r.ok) sw.href = fallback;
+            })
+            .catch(function () {
+              sw.href = fallback;
+            });
+        }
+      })();
+    </script>
+
+    <d-title>
+      <h1>AI가 초파리 뇌의 배선을 고쳐 미로를 탈출시키다</h1>
+      <p>
+        FlyWire 커넥톰 위의 weight-space programming. Claude가 시뮬레이션된 초파리 뇌 전체의 시냅스를 학습 없이
+        직접 고쳐, 방향을 잡는 능력을 되살렸다.
+      </p>
+    </d-title>
+
+    <d-byline></d-byline>
+
+    <d-article>
+      <div class="tldr">
+        <b>TL;DR</b> 초파리 뇌 전체를 흉내 낸 스파이킹 모델(뉴런 138,639개, 연결 약 1,500만 개)에 단순한 몸과
+        미로를 붙였다. 원래 뇌는 제자리에서 빙빙 돌아 약 4%만 탈출한다.
+        <ul>
+          <li>
+            AI 편집자(Claude Opus 5.5)는 기존 연결의 1% 이내만 바꿀 수 있었다. 시뮬레이션을 50회까지 돌릴 수
+            있었다.
+          </li>
+          <li>
+            편집자는 조향 회로의 좌우 불균형이라는 고장 원인을 스스로 찾아냈다. 고친 뇌는 한 번도 본 적 없는
+            미로에서 99~100% 탈출했다.
+          </li>
+          <li>무작위 편집이나 규칙 기반 편집은 효과가 없었다.</li>
+          <li>배선도만 읽고 시뮬레이션은 못 돌린 AI는 엉뚱한 뉴런을 원인으로 지목했다.</li>
+        </ul>
+      </div>
+
+      <h2>영상</h2>
+      <figure>
+        <div class="video-wrap">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/Az4bUX_8P4A?rel=0"
+            title="Fly brain maze escape: original vs AI-edited"
+            allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <figcaption>
+          <b>영상 1:</b> 같은 두 평가 미로에서 같은 파리 8마리를 여덟 가지 뇌로 움직인 모습이다. 색은 출발 방향을
+          나타내며, 2배속이다. 영상 속 글자는 영어다.
+          <ul>
+            <li>윗줄: 원본 뇌, AI 없는 대조군 두 개, 배선도만 읽은 AI</li>
+            <li>아랫줄: 시뮬레이션을 10회 또는 50회 돌릴 수 있었던 AI</li>
+          </ul>
+          편집자들은 이 미로를 한 번도 보지 못했다.
+        </figcaption>
+      </figure>
+
+      <h2>아이디어: 가중치를 직접 고쳐서 신경망을 프로그래밍하기</h2>
+      <p>
+        이 프로젝트는
+        <a href="https://rikiyat.github.io/blog/weight-space-programming">"Sparks of Weight-Space Programming"</a>
+        <d-cite key="rikiyat2026wsp"></d-cite>의 아이디어를 따른다.
+      </p>
+      <p>
+        보통 신경망을 바꾸려면 학습을 시킨다. 기울기를 계산해 모든 가중치를 조금씩 움직이는 일을 반복한다.
+        Weight-space programming은 다른 질문을 던진다. 언어 모델이 엔지니어가 코드를 읽듯 신경망을 읽고, 왜 실패하는지
+        알아낸 뒤, 특정 가중치 몇 개를 손으로 고쳐 문제를 해결할 수 있을까?
+      </p>
+      <p>
+        초파리 뇌는 이 질문을 시험하기에 좋다. 그 "가중치"가 실제로 존재하기 때문이다.
+      </p>
+      <ul>
+        <li>
+          FlyWire 프로젝트는 전자현미경으로 성체 초파리 뇌의 모든 뉴런과 시냅스를 지도로 만들었다
+          <d-cite key="dorkenwald2024flywire,schlegel2024flywire"></d-cite>.
+        </li>
+        <li>Shiu 등은 이 배선도를 실제로 돌아가는 시뮬레이션으로 만들었다 <d-cite key="shiu2024brain"></d-cite>.</li>
+        <li>
+          모든 뉴런은 똑같이 단순한 leaky integrate-and-fire 단위다. 뉴런끼리 다른 점은 연결 행렬 <i>W</i>뿐이다.
+          <i>W</i>의 각 칸은 한 뉴런에서 다른 뉴런으로 가는 시냅스 수이고, 신경전달물질에 따라 부호가 붙는다.
+        </li>
+        <li>학습된 파라미터는 하나도 없다. 그래서 뇌의 행동을 바꾸려면 <i>W</i>를 고치는 수밖에 없다.</li>
+      </ul>
+
+      <h2>실험 구성</h2>
+      <h3>몸과 미로</h3>
+      <p>
+        Shiu 등의 모델을 손대지 않은 채 아주 단순한 몸에 연결했다. 파리는 5 mm 칸으로 된 격자 미로를 초속 10 mm로
+        걷는다. 한 모서리에서 출발해 반대쪽 모서리까지 제한 시간 안에 가야 한다. 제한 시간은 6×6 미로가 20초,
+        8×8 미로가 30초다. 5 ms마다 뇌와 몸이 세 가지 신호를 주고받는다.
+      </p>
+      <ul>
+        <li>
+          <b>머리 방향 입력:</b> 중심복합체의 나침반 뉴런(EPG) 가운데 지금 머리 방향에 해당하는 것들을 150 Hz로
+          자극한다. 눈에 보이는 표지물에 해당한다.
+        </li>
+        <li>
+          <b>목표 입력:</b> 목표 뉴런(FC2) 가운데 최단 경로상 다음 칸 방향에 해당하는 것들을 같은 방식으로 자극한다.
+          즉 뇌는 다음에 <i>어디로</i> 갈지 듣는다. 뇌가 할 일은 그쪽으로 <i>방향을 트는 것</i>이다.
+        </li>
+        <li>
+          <b>조향 출력:</b> 회전 속도는 좌우 DNa02 하행 뉴런에서 읽는다. DNa02는 걷는 파리의 회전을 조절한다고
+          알려진 뉴런이다 <d-cite key="rayshubskiy2020steering"></d-cite>. 회전 속도는
+          <d-math>\dot\theta = -5\,(r_{\text{DNa02,R}} - r_{\text{DNa02,L}})</d-math> (Hz당 deg/s)로 계산한다.
+        </li>
+      </ul>
+      <p>
+        머리 방향 입력과 조향 출력 사이에는 생물학자들이 자세히 밝혀 둔 회로가 있다. PFL3 뉴런이 현재 머리 방향과
+        목표를 비교해 목표 쪽으로 돌도록 만든다 <d-cite key="westeinde2024steering,mussellspires2024goal"></d-cite>.
+        원리대로라면 이 고리 전체가 잘 작동해야 한다.
+      </p>
+
+      <h3>무엇이 고장 났나</h3>
+      <p>
+        실제로는 작동하지 않는다. 원래 뇌는 목표가 어디에 있든 거의 항상 왼쪽으로 초당 약 90도씩 돈다. 왼쪽 DNa02는
+        약 22 Hz, 오른쪽은 약 4 Hz로 발화한다. 파리들은 출발점 근처에서 빙빙 돌고, 약 4%만 탈출한다. 6×6 평가
+        미로에서는 6%, 8×8에서는 2%다.
+      </p>
+
+      <h3>AI 편집자에게 준 규칙</h3>
+      <p>
+        편집자는 Claude Opus 5.5다. Claude Code를 헤드리스 모드로, 한 턴에 한 번씩 호출해 실행했다.
+      </p>
+      <ul>
+        <li>시스템 프롬프트는 "Answer the user's request." 한 줄뿐이었다.</li>
+        <li>도구, 플러그인, 하위 에이전트는 모두 껐다.</li>
+      </ul>
+      <p>편집자는 한 턴에 블록 하나를 써서 두 가지만 할 수 있었다.</p>
+      <ul>
+        <li>
+          <b>Python 실행:</b> 전체 커넥톰, 뉴런 주석, 시냅스 위치가 들어 있는 격리된 커널에서 최대 300회 실행할 수
+          있다. 여기서 배선을 분석하고 편집을 저장한다.
+        </li>
+        <li>
+          <b>시뮬레이션 요청:</b> 연습 미로를 돌리거나, 직접 설계한 탐침 실험을 돌린다. 예를 들어 "머리 방향은
+          고정하고 목표를 바꿔 가며 이 뉴런들을 기록하라" 같은 실험이다. 매번 원래 뇌와 편집한 뇌를 나란히
+          돌린다. 이 횟수를 <b>0회</b>, <b>10회</b>, <b>50회</b>로 바꿔 가며 실험했다.
+        </li>
+      </ul>
+      <p>편집 자체는 엄격하게 제한했다.</p>
+      <ul>
+        <li>이미 있는 연결만 바꿀 수 있다. 새 배선은 만들 수 없다.</li>
+        <li>연결의 부호는 바꿀 수 없다. 흥분성 시냅스는 계속 흥분성이다.</li>
+        <li>어떤 연결도 원래의 2배를 넘을 수 없다. 0으로 만들어 없애는 것은 허용한다.</li>
+        <li>전체 연결 15,091,983개 중 최대 1%(150,919개)까지만 원래와 달라질 수 있다.</li>
+      </ul>
+      <p>
+        뇌 전체를 한꺼번에 조절하는 손쉬운 방법은 원하지 않았다. 과제 설명에서도 무엇이 고장 났는지 찾아내고, 바꾸는
+        것마다 근거를 대라고 요구했다.
+      </p>
+      <p>편집자가 원래 정답을 알 수 없도록 다음과 같이 막았다.</p>
+      <ul>
+        <li>편집자는 매번 빈 폴더에서 새로 시작했다. 메모리, 프로젝트 파일, 메모는 전혀 없었다.</li>
+        <li>평가 미로, 우리의 분석 내용, 이 글은 한 번도 보지 못했다.</li>
+        <li>
+          모든 API 요청을 기록해, 실제로 들어간 컨텍스트 전체에 정보가 새어 들어갔는지 검사했다.<d-footnote>평가
+          미로 식별자와 우리가 의심했던 뉴런 이름을 모든 요청에서 검색했다. 걸린 것은 모두 편집자 자신의 코드
+          출력, 편집자가 직접 쓴 말, 라이브러리 파일 경로처럼 무해한 출처였다.</d-footnote>
+        </li>
+      </ul>
+      <p>
+        편집이 끝나면 두 뇌를 숨겨 둔 평가 미로에서 돌렸다.
+      </p>
+      <ul>
+        <li>서로 다른 6×6 미로 8개와 8×8 미로 8개를, 각각 출발 방향 8가지로 돌렸다. 뇌 하나당 파리 128마리다.</li>
+        <li>원래 뇌와 편집한 뇌에는 완전히 같은 파리와 같은 무작위 잡음을 주었다. 그래서 짝지어 비교할 수 있다.</li>
+      </ul>
+
+      <h2>결과</h2>
+      <figure>
+        <img src="results.png" alt="탈출률 변화 막대그래프. 대조군과 배선도만 본 AI는 0 근처, 시뮬레이션 10회 AI는 +30~+78, 50회 AI는 +94와 +96으로 상한선 근처." />
+        <figcaption>
+          <b>그림 1:</b> 숨긴 평가 미로에서의 탈출률 변화(편집 − 원본)다. 6×6과 8×8 세트의 평균이며, 짝지은 파리
+          128마리 기준이다. 점선은 모든 파리가 탈출했을 때의 점수인 상한선이다. 무작위 편집 10개는 −2.3~+2.3
+          사이였고, 그중 가장 좋은 것만 표시했다.
+        </figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>뇌</th>
+              <th>바꾼 연결 수</th>
+              <th>탈출률, 6×6</th>
+              <th>탈출률, 8×8</th>
+              <th>평균 회전 (°/s)</th>
+              <th>구한 / 잃은 파리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>원본</td><td>0</td><td>6%</td><td>2%</td><td>+90</td><td>–</td></tr>
+            <tr><td>AI, 시뮬레이션 0회 (3번 실행)</td><td>3–842</td><td>3–5%</td><td>0%</td><td>+81 ~ +90</td><td>1–2 / 4</td></tr>
+            <tr><td>AI, 시뮬레이션 10회 #1</td><td>3,419</td><td>45%</td><td>41%</td><td>+5</td><td>52 / 2</td></tr>
+            <tr><td>AI, 시뮬레이션 10회 #2</td><td>1,654</td><td>41%</td><td>27%</td><td>−13</td><td>39 / 1</td></tr>
+            <tr><td>AI, 시뮬레이션 10회 #3</td><td>290</td><td>88%</td><td>77%</td><td>−5</td><td>100 / 0</td></tr>
+            <tr class="best"><td>AI, 시뮬레이션 50회 #1</td><td>542</td><td><b>100%</b></td><td><b>100%</b></td><td>+2</td><td>123 / 0</td></tr>
+            <tr class="best"><td>AI, 시뮬레이션 50회 #2</td><td>2,651</td><td><b>98%</b></td><td><b>97%</b></td><td>+5</td><td>120 / 0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        패턴은 분명하다. 시뮬레이션 0회 조건에서는 편집자 세 명이 모두 실패했다.
+      </p>
+      <ul>
+        <li>
+          배선도를 읽고, DNa02로 연결되는 AOTU019라는 뉴런 유형에서 눈에 띄는 좌우 비대칭을 찾아 "고쳤다".
+          그런데 아무 효과가 없었다.
+        </li>
+        <li>나중에 직접 확인해 보니, AOTU019를 완전히 꺼도 왼쪽으로 쏠리는 현상은 그대로였다.</li>
+        <li>배선만 보고 세운 그럴듯한 이야기가 틀렸던 것이다.</li>
+      </ul>
+      <p>
+        시뮬레이션을 10회 돌릴 수 있게 하자, 편집자 세 명이 모두 진짜 원인을 찾았고 탈출률이 크게 올랐다. 50회에서는
+        두 편집자 모두 상한선에 닿았다.
+      </p>
+      <ul>
+        <li>가장 좋은 편집자는 연결 542개만 바꿨다. 전체 시냅스의 0.01%다.</li>
+        <li>그런데도 평가 파리 128마리가 모두 탈출했다.</li>
+        <li>어떤 편집자도 원래 뇌가 탈출시키던 파리를 놓친 적이 없었다.</li>
+      </ul>
+
+      <h3>대조군</h3>
+      <p>이 정도 크기의 편집이면 아무거나 효과가 있는 걸까? AI 없이 만든 편집을 같은 파리 128마리로 시험했다.</p>
+      <ul>
+        <li>
+          <b>무작위 편집 10개:</b> 무작위로 고른 중앙 뇌 뉴런들의 출력을 ×1.9 했다. 모두 약 3,400개 연결로, 가장 큰
+          AI 편집과 같은 크기다.
+          <ul>
+            <li>효과는 −2.3~+2.3%p였다.</li>
+            <li>파리들은 계속 초당 약 90도로 돌았다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>규칙 기반 대칭화:</b> 좌우 짝이 다른 모든 세포 유형의 총출력을 같게 맞췄다.
+          <ul>
+            <li>가장 비대칭이 심한 유형부터 1% 한도까지 진행해 연결 150,652개를 바꿨다.</li>
+            <li>결과는 −3.1%p였다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>맞는 방법, 틀린 쪽:</b> AI 편집자 한 명이 한 변경을 왼쪽 대신 오른쪽 PFL3에 똑같이 적용했다. 그러자
+          왼쪽 회전이 두 배 넘게 강해져 초당 약 200도가 됐다.
+        </li>
+      </ul>
+      <p>즉 효과는 연결을 바꿨다는 사실이 아니라, <i>어떤</i> 연결을 바꿀지 알았다는 데서 나온다.</p>
+
+      <h2>AI가 찾아낸 원인과 수리</h2>
+      <p>시뮬레이션 50회 편집자 두 명은 서로 독립적으로 작업했는데, 보고서 내용은 같았다.</p>
+      <ul>
+        <li>나침반 신호와 목표 신호는 정상이었다. 활동 정점이 실제 방향과 목표에서 약 1° 이내에 있었다.</li>
+        <li>고장은 비교기인 PFL3 뉴런에 있었고, 좌우 불균형이 원인이었다.</li>
+      </ul>
+      <p>구체적으로는 다음과 같다.</p>
+      <ul>
+        <li>목표 뉴런(FC2)이 왼쪽 PFL3에 보내는 시냅스가 오른쪽보다 약 14% 적다(1,152 대 1,318).</li>
+        <li>오른쪽 PFL3 뉴런은 출력 시냅스도 전체적으로 더 많다(15,519 대 13,534).</li>
+        <li>
+          그 아래 외측 부속엽(LAL)에서는 좌우를 가로지르는 억제 뉴런들이 이 작은 불균형을 전부-아니면-전무의 잠김으로
+          키운다. 편집자 한 명은 이를 "승자독식"이라고 불렀다. 왼쪽 조향 채널이 이기고, 파리는 항상 왼쪽으로 돈다.
+        </li>
+      </ul>
+      <p>두 편집자 모두 고치기 전에 이 원인이 맞는지 실험으로 확인했다.</p>
+      <ul>
+        <li>왼쪽 PFL3에 약간의 자극을 더하자, 회전 속도가 +45°/s에서 0을 지나 −110°/s까지 매끄럽게 바뀌었다.</li>
+        <li>같은 자극을 오른쪽에 더하자 왼쪽 회전이 오히려 심해졌다.</li>
+        <li>
+          한 편집자는 회전 반응을 <d-math>\text{회전} \approx 96 + 86\sin(\text{목표} - \text{방향})</d-math> deg/s로
+          맞췄다. 파리에게 조향 신호는 있지만, 그보다 큰 일정한 치우침이 얹혀 있다. 그래서 어떤 방향에도 자리 잡지
+          못하고 계속 돈다.
+        </li>
+      </ul>
+      <p>두 편집자가 만든 수리는 세 단계로 이루어진다.</p>
+      <ol>
+        <li>
+          <b>PFL3 좌우 균형 맞추기:</b>
+          <ul>
+            <li>1번 편집자는 FC2 → 왼쪽 PFL3를 ×1.30 했다. 이 값은 측정한 용량-반응 곡선에서 골랐다.</li>
+            <li>2번 편집자는 대신 왼쪽 PFL3의 출력을 2배로 했다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>뉴런 하나하나 조정하기:</b> 둘 다 거의 꺼져 있던 PFL3 세포를 살리고, 방향 칸마다 남은 치우침을 없앴다.
+          <ul>
+            <li>1번은 세포별 작은 배율로 했다.</li>
+            <li>2번은 PFL3 24개의 발화율로 회전 속도를 예측하는 회귀 분석으로 했다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>조향 감도 올리기:</b> 둘 다 회전 신호를 실어 나르는 DNa02 입력 약 50개를 대략 2배로 키웠다. 치우침은
+          되살리지 않으면서 파리의 "핸들"을 더 민감하게 만든 셈이다.
+        </li>
+      </ol>
+      <p>
+        각 단계는 새 시뮬레이션에서 도움이 된다고 확인될 때만 남겼다.
+      </p>
+      <ul>
+        <li>
+          두 편집자 모두 시도했다가 버린 것들도 꼼꼼히 기록했다. 머리 방향 입력의 균형 조정, PFL3 출력의 일괄 증폭
+          등이다.
+        </li>
+        <li>
+          아직 실패하는 몇 마리는 긴 미로에서 시간이 초과된 경우다. 길은 맞게 가지만 모서리를 크게 돌다가 시간을
+          잃는다.
+        </li>
+      </ul>
+      <p>실행 비용은 다음과 같았다.</p>
+      <ul>
+        <li>
+          시뮬레이션 50회 실행: 한 번에 6~8시간, 편집자 약 270~320턴이 걸렸다. 대부분은 시뮬레이션이 끝나기를
+          기다리는 시간이었다. 출력 토큰은 실행당 약 40만 개였다.
+        </li>
+        <li>시뮬레이션 10회 실행: 1~2시간이 걸렸다.</li>
+      </ul>
+
+      <h2>한계</h2>
+      <ul>
+        <li>
+          <b>실행 횟수가 적다.</b> 예산 0회와 10회는 각 3번, 50회는 2번 실행했다. 결과의 방향은 분명하지만 실행마다
+          편차가 크다. 10회 실행들은 +30에서 +78까지 퍼져 있다.
+        </li>
+        <li>
+          <b>뇌는 조향만 한다.</b> 미로의 길은 대신 풀어 준다. 목표 뉴런이 다음 칸의 방향을 알려 주기 때문이다. 고친
+          것은 방향을 트는 반사이지, 길 찾기나 계획이 아니다.
+        </li>
+        <li>
+          <b>모델이지 진짜 파리가 아니다.</b>
+          <ul>
+            <li>Shiu 등의 모델은 똑같은 점 뉴런만 쓰고, 가소성·신경조절·전기 시냅스가 없다.</li>
+            <li>
+              왼쪽 쏠림은 진짜 파리의 성질이 아닐 수 있다. 단순화된 모델의 특성이거나, 좌우 반구의 배선 교정 정도가
+              달라서 생긴 것일 수도 있다.
+            </li>
+            <li>PFL3 배선 비대칭이라는 원인은 검증해 볼 만한 예측이지, 생물학적 발견은 아니다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>부작용은 가볍게만 확인했다.</b> 설탕 자극 반응, 쉬고 있을 때의 활동, 과하게 발화하는 뉴런 수는 모두
+          그대로였다. 다만 이 검사들은 거칠다. 다른 행동이 망가지지 않았는지 더 강하게 확인할 필요가 있다.
+        </li>
+      </ul>
+
+      <h2>다음 단계</h2>
+      <p>
+        가장 흥미로운 결과는 시뮬레이션 0회와 10회 사이의 차이다.
+      </p>
+      <ul>
+        <li>
+          커넥톰을 읽는 것만으로는 부족하다. 강한 모델도 1,500만 개 연결을 들여다보다가, 그럴듯하지만 틀린
+          비대칭에 매달렸다.
+        </li>
+        <li>
+          실험 몇 번을 돌려 뉴런을 기록하고 가설을 시험할 수 있어야 짐작이 진단으로 바뀐다.
+        </li>
+      </ul>
+      <p>앞으로 해 보고 싶은 것은 다음과 같다.</p>
+      <ul>
+        <li>조건마다 실행 횟수 늘리기</li>
+        <li>고장이 불균형 하나로 끝나지 않는 더 어려운 과제</li>
+        <li>뇌의 나머지 부분이 여전히 제대로 작동하는지에 대한 더 강한 확인</li>
+      </ul>
+      <h2>실험 방법 (자세히)</h2>
+      <p>이 절에는 실험을 똑같이 다시 하는 데 필요한 내용을 모두 적었다.</p>
+
+      <h3>1. 뇌 모델</h3>
+      <ul>
+        <li>
+          <b>커넥톰:</b> FlyWire 783 버전을 썼다(Zenodo 10676866, CC-BY 4.0). 뉴런 138,639개, 연결 15,091,983개다.
+          <ul>
+            <li><i>W</i>는 뉴런 쌍 사이의 시냅스 수다.</li>
+            <li>보내는 뉴런이 GABA성이나 글루탐산성이면 음수로 둔다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>뉴런 모델:</b> Shiu 등과 같은 leaky integrate-and-fire 모델이다 <d-cite key="shiu2024brain"></d-cite>.
+          <ul>
+            <li>
+              식은 <d-math>dv/dt = (v_0 - v + g)/\tau_m</d-math>, <d-math>dg/dt = -g/\tau</d-math>이다.
+            </li>
+            <li>
+              상수: <d-math>v_0 = v_\text{reset} = -52</d-math> mV, 문턱 −45 mV, <d-math>\tau_m = 20</d-math> ms,
+              <d-math>\tau = 5</d-math> ms, 불응기 2.2 ms.
+            </li>
+            <li>스파이크 하나가 1.8 ms 뒤 상대 뉴런에 <d-math>0.275\,W_{ij}</d-math> mV를 더한다.</li>
+            <li>배경 입력은 없다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>구현:</b> GPU에서 도는 이벤트 기반 PyTorch 코드를 직접 짰다. 시간 간격은 0.1 ms다.
+          <ul>
+            <li>Shiu 등의 원본 코드를 Brian2로 옮긴 버전과 비교했다. 설탕 뉴런을 자극하는 실험을 30번 돌렸다.</li>
+            <li>뉴런별 스파이크 수의 상관이 r = 0.9998이었고, 총 스파이크 수 차이는 2%였다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>2. 몸, 미로, 연결 방식</h3>
+      <ul>
+        <li>
+          <b>미로:</b> seed로 만드는 완전 미로다(깊이 우선 백트래킹). 칸은 5 mm다.
+          <ul>
+            <li>(0, 0) 칸 중앙에서 출발하고, 출구는 반대쪽 모서리다.</li>
+          </ul>
+        </li>
+        <li><b>몸:</b> 초속 10 mm로 일정하게 걷는다. 벽에 막히면 그 방향으로는 못 가고, 다른 방향으로 미끄러진다.</li>
+        <li><b>주고받는 주기:</b> 뇌와 몸은 5 ms마다 신호를 주고받는다.</li>
+        <li>
+          <b>머리 방향 입력:</b> 현재 머리 방향 ±30° 안에 있는 EPG 뉴런에 150 Hz 포아송 입력을 준다. 입력 하나하나가
+          뉴런을 발화시킬 만큼 세다.
+        </li>
+        <li>
+          <b>목표 입력:</b> 목표 방향 ±30° 안에 있는 FC2A/B/C 뉴런에 같은 입력을 준다.
+          <ul>
+            <li>목표는 최단 경로상 다음 칸 중심 방향이다.</li>
+            <li>5 ms마다 다시 계산한다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>뉴런의 각도:</b> <i>W</i>가 아니라 시냅스 위치로 정했다.
+          <ul>
+            <li>EPG: 타원체 안에서 수상돌기가 놓인 각도</li>
+            <li>FC2: 부채꼴체 안에서 출력이 놓인 위치를 PFL3 투사 패턴에 대응시킨 값</li>
+          </ul>
+        </li>
+        <li>
+          <b>출력:</b> 회전 속도 = −5°/s/Hz × (DNa02 오른쪽 − 왼쪽)이다. 각 발화율은 50 ms 지수 필터로 계산한다.
+        </li>
+        <li>
+          <b>한 번의 시행:</b>
+          <ul>
+            <li>목표 = 머리 방향으로 200 ms 동안 안정시킨 뒤 시작한다.</li>
+            <li>제한 시간은 6×6이 20초, 8×8이 30초다.</li>
+            <li>출구 칸에 들어가면 탈출로 센다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>3. 편집 규칙</h3>
+      <p><code>save_edit</code> 함수가 아래 규칙을 강제하고, 하나라도 어기는 요청은 통째로 거부한다.</p>
+      <ul>
+        <li>기존 연결만 바꿀 수 있다.</li>
+        <li>부호는 바꿀 수 없다. 0으로 만들어 연결을 없애는 것은 허용한다.</li>
+        <li>모든 연결에서 <d-math>|w_\text{new}| \le 2|w_\text{orig}|</d-math>이어야 한다.</li>
+        <li>원본과 달라도 되는 연결은 최대 150,919개, 전체의 1%다.</li>
+      </ul>
+
+      <h3>4. 편집자</h3>
+      <ul>
+        <li>
+          <b>모델:</b> <code>claude-opus-5-5</code>, effort high, 적응형 사고(adaptive thinking).
+          <ul>
+            <li>Claude Code 2.1 헤드리스 모드로 호출했다.</li>
+            <li>한 턴에 <code>claude -p</code>를 한 번 실행하고, <code>--resume</code>으로 대화를 이었다.</li>
+          </ul>
+        </li>
+        <li><b>시스템 프롬프트:</b> "Answer the user's request."</li>
+        <li>
+          <b>격리:</b>
+          <ul>
+            <li>도구, MCP, 하위 에이전트를 모두 껐다.</li>
+            <li>실행마다 새 빈 폴더에서 시작했다. CLAUDE.md, 메모리, 스킬, 프로젝트 설정은 없었다.</li>
+            <li>로컬 프록시로 모든 API 요청을 기록하고, 실행마다 컨텍스트 전체에 정보가 샜는지 검사했다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>과제 설명에 담은 내용:</b>
+          <ul>
+            <li>모델, 몸, 편집 규칙</li>
+            <li>원래 뇌의 연습 미로 기록</li>
+            <li>두 가지 도구</li>
+            <li>
+              일하는 방식: 먼저 진단하고, 인과적으로 원인 위치를 찾고, 짝지은 비교로 재고, 모든 단계를 설명할 것
+            </li>
+            <li>금지 사항: 경사하강법, 반복적인 가중치 맞추기, 커널 안에서 네트워크를 직접 시뮬레이션하는 것</li>
+          </ul>
+        </li>
+        <li>
+          <b>응답 형식:</b> 응답마다 쉬운 영어 설명과 블록 정확히 하나가 들어간다.
+          <ul>
+            <li>
+              <code>```python</code>: CPU의 격리된 커널에서 실행한다.
+              <ul>
+                <li>변수는 실행 사이에 유지된다.</li>
+                <li>최대 300회, 한 번에 900초·96 GB까지, 출력은 1만 자에서 자른다.</li>
+                <li>커널에는 <i>W</i>, 뉴런 주석, 나침반·목표 각도, 신경망 부위별 연결, 시냅스 좌표가 들어 있다.</li>
+              </ul>
+            </li>
+            <li>
+              <code>```forward</code>: 시뮬레이션 1회.
+              <ul>
+                <li>
+                  <b>미로 실행:</b> 연습 미로 100–199 × 머리 방향 8가지로 최대 64마리, 약 12분 걸린다.
+                  <code>"both"</code>로 요청하면 원래 뇌와 편집한 뇌가 같은 파리·같은 난수로 돌고, 짝지은 차이와
+                  표준오차가 나온다.
+                </li>
+                <li>
+                  <b>탐침 실험:</b> 머리 방향과 목표를 고정한 열린 고리 조건으로, 최대 64개 조건을 각각 최대 2초
+                  돌린다. 약 1–3분 걸린다.
+                  <ul>
+                    <li>뉴런 자극: 최대 300 Hz</li>
+                    <li>뉴런 침묵: 최대 200개</li>
+                    <li>뉴런 기록: 최대 5,000개</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li><b>예산:</b> 시뮬레이션 0회, 10회, 50회. 검증에서 거부된 요청은 횟수에 넣지 않는다.</li>
+        <li>
+          <b>인수인계:</b> 40턴마다 새 대화를 시작한다.
+          <ul>
+            <li>새 대화에는 과제 설명, 편집 요약, 편집자 자신의 노트 파일, 마지막 메시지를 넘긴다.</li>
+            <li>커널과 편집 내용은 그대로 유지된다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>종료:</b> 시뮬레이션 예산을 다 쓰거나 Python 실행 300회에 닿으면 끝난다(최대 400턴).
+          <ul>
+            <li>마지막에 편집자가 최종 답변을 쓴다.</li>
+            <li>그 시점에 디스크에 있는 편집이 제출된다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>5. 평가</h3>
+      <ul>
+        <li>
+          <b>숨긴 평가 미로:</b>
+          <ul>
+            <li>6×6: seed 0–7, 제한 20초</li>
+            <li>8×8: seed 1000–1007, 제한 30초</li>
+            <li>참고로 연습 미로는 seed 100–199이고 6×6만 있었다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>파리 수:</b> 미로마다 출발 방향 8가지(−180°부터 45° 간격)로 돌린다. 한 세트에 64마리, 뇌 하나당
+          128마리다.
+        </li>
+        <li>
+          <b>짝지은 비교:</b> 원래 뇌와 편집한 뇌를 같은 잡음 seed(424242)로 돌린다. 그래서 같은 파리끼리 비교할 수
+          있다.
+        </li>
+        <li><b>보고 항목:</b> 세트별 탈출률, 짝지은 향상폭과 표준오차, 구한·잃은 파리 수, 평균 회전 속도.</li>
+        <li>
+          <b>부작용 검사:</b>
+          <ul>
+            <li>설탕 뉴런 자극 반응: 뉴런별 발화율 상관, 총 스파이크 수</li>
+            <li>입력이 없을 때의 활동</li>
+            <li>100 Hz를 넘는 조향 뉴런 수</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>6. 대조군</h3>
+      <ul>
+        <li>
+          <b>무작위:</b> 난수 seed 2026으로 10개를 만들었다.
+          <ul>
+            <li>중앙 뇌 뉴런을 무작위로 골라, 나가는 연결 수가 약 3,419개가 될 때까지 모은다.</li>
+            <li>그 연결들을 ×1.9 한다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>규칙 기반 대칭화:</b> 세포 유형마다 좌우 총출력을 기하평균으로 맞춘다.
+          <ul>
+            <li>가장 비대칭이 심한 유형부터 1% 한도까지 진행했다.</li>
+            <li>결과적으로 251개 유형, 연결 150,652개를 바꿨다.</li>
+          </ul>
+        </li>
+        <li>
+          <b>표적 변형:</b> 아래 네 가지를 같은 방식으로 평가했다.
+          <ul>
+            <li>왼쪽 PFL3 출력 ×1.9</li>
+            <li>PFL2 ×1.8</li>
+            <li>오른쪽 PFL3 + PFL2 (틀린 쪽)</li>
+            <li>양쪽 PFL3 + PFL2</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>7. 계산 자원</h3>
+      <ul>
+        <li>
+          <b>장비:</b> NVIDIA TITAN RTX 4장. 실행 하나에 GPU 2장을 써서 원래 뇌와 편집한 뇌를 동시에 돌렸다.
+        </li>
+        <li>
+          <b>실행 시간:</b>
+          <ul>
+            <li>시뮬레이션 0회 실행: 약 5분</li>
+            <li>10회 실행: 1–2시간</li>
+            <li>50회 실행: 6–8시간</li>
+            <li>평가: 편집 하나당 약 30분</li>
+          </ul>
+        </li>
+        <li><b>소프트웨어:</b> Python 3.11, CUDA PyTorch, numpy 2.3, Brian2 2.9(위의 비교 검증용).</li>
+      </ul>
+    </d-article>
+
+    <d-appendix></d-appendix>
+
+    <d-bibliography>
+      <script type="text/bibtex">
+        @misc{rikiyat2026wsp,
+          title  = {Sparks of Weight-Space Programming},
+          author = {RikiyaT},
+          year   = {2026},
+          url    = {https://rikiyat.github.io/blog/weight-space-programming}
+        }
+        @article{dorkenwald2024flywire,
+          title   = {Neuronal wiring diagram of an adult brain},
+          author  = {Dorkenwald, Sven and others},
+          journal = {Nature},
+          volume  = {634},
+          pages   = {124--138},
+          year    = {2024}
+        }
+        @article{schlegel2024flywire,
+          title   = {Whole-brain annotation and multi-connectome cell typing of Drosophila},
+          author  = {Schlegel, Philipp and others},
+          journal = {Nature},
+          volume  = {634},
+          pages   = {139--152},
+          year    = {2024}
+        }
+        @article{shiu2024brain,
+          title   = {A Drosophila computational brain model reveals sensorimotor processing},
+          author  = {Shiu, Philip K. and others},
+          journal = {Nature},
+          volume  = {634},
+          pages   = {210--219},
+          year    = {2024}
+        }
+        @article{westeinde2024steering,
+          title   = {Transforming a head direction signal into a goal-oriented steering command},
+          author  = {Westeinde, Elena A. and others},
+          journal = {Nature},
+          volume  = {626},
+          year    = {2024}
+        }
+        @article{mussellspires2024goal,
+          title   = {Converting an allocentric goal into an egocentric steering signal},
+          author  = {Mussells Pires, Pierre and others},
+          journal = {Nature},
+          volume  = {626},
+          year    = {2024}
+        }
+        @article{rayshubskiy2020steering,
+          title   = {Neural circuit mechanisms for steering control in walking Drosophila},
+          author  = {Rayshubskiy, Aleksandr and others},
+          journal = {bioRxiv},
+          year    = {2020}
+        }
+      </script>
+    </d-bibliography>
+  </body>
+</html>

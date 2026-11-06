@@ -5,6 +5,7 @@ description: 앞으로 연구하고 공부한 내용을 이곳에 기록합니�
 tags: blog
 date: 2026-11-05
 featured: true
+lang: ko
 
 authors:
   - name: nangmansung

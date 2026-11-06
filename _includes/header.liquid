@@ -1,0 +1,170 @@
+<header>
+  {%- comment -%}
+    Local override of al_folio_core's header for the two-language site (see _plugins/i18n.rb):
+    shows only the nav pages of the current language and adds a KOR | ENG switch.
+  {%- endcomment -%}
+  {%- assign cur_lang = page.lang | default: site.lang -%}
+  {%- if cur_lang == 'ko' -%}
+    {%- assign lang_home = '/ko/' -%}{%- assign other_lang = 'en' -%}{%- assign other_home = '/' -%}
+  {%- else -%}
+    {%- assign lang_home = '/' -%}{%- assign other_lang = 'ko' -%}{%- assign other_home = '/ko/' -%}
+  {%- endif -%}
+  {%- assign other_url = page.translations[other_lang] | default: other_home -%}
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
+    <div class="container">
+      {% if page.permalink != lang_home %}
+        <a class="navbar-brand title font-weight-lighter" href="{{ lang_home | relative_url }}">
+          {% if site.title == 'blank' %}
+            {% if site.first_name %}
+              <span class="font-weight-bold">
+                {{- site.first_name -}}
+              </span>
+            {% endif %}
+            {% if site.middle_name %}
+              {{- site.middle_name -}}
+            {% endif %}
+            {% if site.last_name %}
+              {{- site.last_name -}}
+            {% endif %}
+          {% else %}
+            {{- site.title -}}
+          {% endif %}
+        </a>
+      {% elsif site.enable_navbar_social %}
+        <!-- Social Icons -->
+        <div class="navbar-brand social">{% social_links %}</div>
+      {% endif %}
+      <!-- Navbar Toggle -->
+      <button
+        class="navbar-toggler collapsed navbar-toggler-main"
+        type="button"
+        data-nav-toggle="navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          {% for p in site.pages %}
+            {% if p.permalink == lang_home %} {% assign about_title = p.title %} {% endif %}
+          {% endfor %}
+
+          <!-- About -->
+          <li class="nav-item {% if page.permalink == lang_home %}active{% endif %}">
+            <a class="nav-link" href="{{ lang_home | relative_url }}">
+              {{- about_title }}
+              {% if page.permalink == lang_home %}
+                <span class="sr-only">(current)</span>
+              {% endif %}
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          {% assign sorted_pages = site.pages | sort: 'nav_order' %}
+          {% for p in sorted_pages %}
+            {% assign p_lang = p.lang | default: site.lang %}
+            {% if p.nav and p.autogen == null and p_lang == cur_lang %}
+              {% if p.dropdown %}
+                {% assign has_active_child = false %}
+                {% for child in p.children %}
+                  {% if page.title == child.title %}
+                    {% assign has_active_child = true %}
+                  {% endif %}
+                {% endfor %}
+                <li class="nav-item dropdown {% if page.title == p.title or has_active_child %}active{% endif %}">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="navbarDropdown"
+                    role="button"
+                    data-nav-dropdown-toggle="true"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    {{- p.title }}
+                    {% if page.title == p.title or has_active_child %}
+                      <span class="sr-only">(current)</span>
+                    {% endif %}
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                    {% for child in p.children %}
+                      {% if child.title == 'divider' %}
+                        <div class="dropdown-divider"></div>
+                      {% else %}
+                        <a
+                          class="dropdown-item {% if page.title == child.title %}active{% endif %}"
+                          href="{% if child.permalink contains '://' %}{{ child.permalink }}{% else %}{{ child.permalink | relative_url }}{% endif %}"
+                        >
+                          {{- child.title -}}
+                        </a>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </li>
+              {% else %}
+                {% assign parent_link = p.permalink | remove: 'index.html' %}
+                <li class="nav-item {% if page.url contains parent_link %}active{% endif %}">
+                  {%- if p.permalink contains '://' -%}
+                    {%- assign url = p.permalink -%}
+                  {%- elsif p.permalink contains '/blog/' -%}
+                    {%- assign url = p.permalink -%}
+                  {%- else -%}
+                    {%- assign url = p.url -%}
+                  {%- endif %}
+                  <a class="nav-link" href="{{ url | relative_url }}">
+                    {{- p.title }}
+                    {% if page.url contains p.url %}
+                      <span class="sr-only">(current)</span>
+                    {% endif %}
+                  </a>
+                </li>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          <!-- Language switch -->
+          <li class="nav-item lang-switch">
+            <a class="nav-link" href="{{ other_url | relative_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">
+              <span class="{% if cur_lang == 'ko' %}lang-current{% endif %}">KOR</span>
+              <span class="lang-sep">|</span>
+              <span class="{% if cur_lang != 'ko' %}lang-current{% endif %}">ENG</span>
+              <span class="sr-only">{% if cur_lang == 'ko' %}Read in English{% else %}한국어로 보기{% endif %}</span>
+            </a>
+          </li>
+          {% if site.search_enabled %}
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          {% endif %}
+          {% if site.enable_darkmode %}
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+  {% if site.enable_progressbar %}
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  {% endif %}
+</header>

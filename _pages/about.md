@@ -2,7 +2,9 @@
 layout: about
 title: about
 permalink: /
-subtitle: 연구와 공부를 기록합니다.
+subtitle: Notes on research and study.
+lang: en
+ref: page-about
 
 selected_papers: false
 social: true
@@ -16,7 +18,7 @@ latest_posts:
   limit: 5
 ---
 
-안녕하세요, **nangmansung**입니다.
+Hi, I'm **nangmansung**.
 
-연구하고 공부한 내용을 이 블로그에 정리하고 있어요.
-글은 [blog](/blog/) 메뉴에서 볼 수 있어요.
+I write up what I research and study on this blog.
+You can find the posts under [blog](/blog/). 한국어로 보려면 오른쪽 위 **KOR**을 누르세요.

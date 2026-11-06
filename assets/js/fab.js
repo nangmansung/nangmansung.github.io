@@ -21,6 +21,8 @@
       "description: 한 줄 요약을 쓰세요",
       "tags: blog",
       "date: " + today,
+      "lang: ko # 이 글의 언어: ko 또는 en",
+      "ref: " + today + "-new-post # 번역본끼리 같은 값으로 맞추면 KOR/ENG 버튼이 서로 연결돼요",
       "",
       "authors:",
       "  - name: nangmansung",
@@ -43,7 +45,7 @@
 
   function uploadTarget() {
     var path = location.pathname;
-    if (path.indexOf("/research") === 0) return { folder: "research", label: "Research" };
+    if (path.indexOf("/research") === 0 || path.indexOf("/ko/research") === 0) return { folder: "research", label: "Research" };
     return { folder: "posts", label: "blog" };
   }
 

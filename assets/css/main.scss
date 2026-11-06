@@ -297,3 +297,33 @@ li code {
     bottom: 16px;
   }
 }
+
+/* ---- Two-language site: KOR | ENG switch in the navbar, "KOR only" badge in lists ---- */
+.navbar .lang-switch .nav-link {
+  letter-spacing: 0.02em;
+  color: var(--global-text-color-light);
+}
+
+.navbar .lang-switch .lang-current {
+  font-weight: 600;
+  color: var(--global-theme-color);
+}
+
+.navbar .lang-switch .lang-sep {
+  margin: 0 2px;
+  opacity: 0.5;
+}
+
+.lang-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  color: var(--global-theme-color);
+  border: 1px solid var(--global-theme-color);
+  border-radius: 999px;
+  text-transform: none;
+}
