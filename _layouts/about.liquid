@@ -48,13 +48,12 @@ layout: default
       {% include news.liquid limit=true %}
     {% endif %}
 
-    <!-- Latest posts -->
-    {% if page.latest_posts and page.latest_posts.enabled %}
+    <!-- Latest research (local override: replaces "latest posts"; see _includes/latest_research.liquid) -->
+    {% if page.latest_research and page.latest_research.enabled %}
       <h2>
-        {%- comment -%} local override: language-aware link (see _plugins/i18n.rb) {%- endcomment -%}
-        {% if page.lang == 'ko' %}<a href="{{ '/ko/blog/' | relative_url }}" style="color: inherit">최근 글</a>{% else %}<a href="{{ '/blog/' | relative_url }}" style="color: inherit">latest posts</a>{% endif %}
+        {% if page.lang == 'ko' %}<a href="{{ '/ko/research/' | relative_url }}" style="color: inherit">최근 연구</a>{% else %}<a href="{{ '/research/' | relative_url }}" style="color: inherit">latest research</a>{% endif %}
       </h2>
-      {% include latest_posts.liquid %}
+      {% include latest_research.liquid %}
     {% endif %}
 
     <!-- Selected papers -->
