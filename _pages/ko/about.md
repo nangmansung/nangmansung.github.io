@@ -2,9 +2,9 @@
 layout: about
 title: 소개
 permalink: /ko/
-subtitle: 연구와 공부를 기록합니다.
 lang: ko
 ref: page-about
+hide_header: true
 
 selected_papers: false
 social: true
@@ -17,7 +17,12 @@ latest_research:
   limit: 5
 ---
 
-안녕하세요, **nangmansung**입니다.
+안녕하세요.
 
-연구하고 공부한 내용을 이 블로그에 정리하고 있어요.
-연구 글은 [연구](/ko/research/) 메뉴에서 볼 수 있어요.
+가끔씩 재미난 주제로 연구를 진행합니다.
+
+블로그의 모든 글은 AI SLOP이 심할 수 있습니다.
+
+모든 글은 영어/한국어로 제공하고, 연구관련된 내용이 궁금하면 오른쪽 위의 "AI"를 눌러서 AI 에이전트한테 먹이고 설명해달라고 하세요.
+
+Contact) [wsung0011@g.skku.edu](mailto:wsung0011@g.skku.edu)
