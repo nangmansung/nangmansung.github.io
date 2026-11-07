@@ -44,19 +44,19 @@
 
   --global-text-color: #333333;
   --global-text-color-light: #6b7280;
-  --global-theme-color: #b4532a;
-  --global-hover-color: #d98a5f;
-  --global-code-bg-color: #f4efe9;
+  --global-theme-color: #0f7c80;
+  --global-hover-color: #4fa8ab;
+  --global-code-bg-color: #eef3f4;
   --global-divider-color: rgba(0, 0, 0, 0.1);
-  --global-footer-bg-color: #fbf6f0;
+  --global-footer-bg-color: #f4fafa;
   --global-footer-text-color: #6b7280;
-  --global-footer-link-color: #b4532a;
+  --global-footer-link-color: #0f7c80;
   --global-distill-app-color: #6b7280;
 
-  --global-bg-color: #fffcf8;
+  --global-bg-color: #fbfefe;
 
-  --site-title-band: #f8eee4;
-  --site-link-underline: #e8bfa3;
+  --site-title-band: #eaf6f6;
+  --site-link-underline: #a6d7d8;
 }
 
 html,
@@ -100,7 +100,7 @@ d-article li a {
 
 /* Navbar: plain white with a hairline */
 .navbar {
-  background-color: #fffcf8;
+  background-color: #fbfefe;
   border-bottom: 1px solid var(--global-divider-color);
   box-shadow: none;
 }
@@ -219,7 +219,7 @@ li code {
 }
 
 .write-btn:hover {
-  background-color: #8f3f1f;
+  background-color: #0a5d60;
 }
 
 .write-btn.secondary {
@@ -258,7 +258,7 @@ li code {
 }
 
 .nm-fab-btn:hover {
-  background-color: #8f3f1f;
+  background-color: #0a5d60;
 }
 
 .nm-fab-open .nm-fab-btn {
